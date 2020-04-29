@@ -6,8 +6,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"io/ioutil"
+	"encoding/json"
 	"github.com/matrix-org/gomatrix"
 )
+
+type Alert struct {
+
+}
 
 func main() {
 	// Initialize logger.
@@ -37,14 +43,26 @@ func main() {
 		logger.Fatalf("Could not log in to Matrix (%v): %v", *homeserver, err)
 	}
 
-	/*
-	logger.Printf("Syncing with Matrix homserver (%v)", *homeserver)
-	err = matrixClient.Sync()
+	joinedRooms, err := matrixClient.JoinedRooms()
 	if err != nil {
-		logger.Fatalf("Could not sync with Matrix homeserver (%v): %v", *homeserver, err)
+		logger.Fatalf("Could not fetch joined rooms: %v", err)
 	}
-	*/
-	_ = matrixClient
+
+	alreadyJoinedTarget := false
+	for _, roomID := range joinedRooms.JoinedRooms {
+		// FIXME: will only work if target is a roomID, not an alias.
+		if *target == roomID {
+			alreadyJoinedTarget = true
+		}
+	}
+
+	if !alreadyJoinedTarget {
+		logger.Printf("Trying to join %v...", *target)
+		_, err := matrixClient.JoinRoom(*target, "", nil)
+		if err != nil {
+			logger.Fatalf("Failed to join %v: %v", *target, err)
+		}
+	}
 
 	// Initialize HTTP serve (= listen for incoming requests).
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -54,6 +72,24 @@ You will find more details on: http://git.sr.ht/~fnux/matrix-prometheus-alertman
 	})
 
 	http.HandleFunc("/alert", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		var alert Alert
+		reqBody, _ := ioutil.ReadAll(r.Body)
+		json.Unmarshal(reqBody, &alert)
+
+		// Check validity
+
+		logger.Printf("Sending message")
+		_, err := matrixClient.SendText(*target, "spouik spouik spouik")
+		if err != nil {
+			logger.Fatalf("Failed to send message: %v", err)
+		}
+
+		w.WriteHeader(http.StatusOK)
 	})
 
 	var listenAddr = fmt.Sprintf(":%v", *port)
