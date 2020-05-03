@@ -23,7 +23,7 @@ type Configuration struct {
 	MXToken string
 
 	HTTPPort int
-	HTTPToken string
+	HTTPAddress string
 }
 
 func getMatrixMessageFor(alert template.Alert) gomatrix.HTMLMessage {
@@ -129,7 +129,7 @@ func main() {
 		handleIncomingHooks(w, r, matrixClient, config.TargetRoomID)
 	})
 
-	var listenAddr = fmt.Sprintf(":%v", config.HTTPPort)
+	var listenAddr = fmt.Sprintf("%v:%v", config.HTTPAddress, config.HTTPPort)
 	logger.Printf("Listening for HTTP requests (webhooks) on %v", listenAddr)
 	logger.Fatal(http.ListenAndServe(listenAddr, nil))
 }

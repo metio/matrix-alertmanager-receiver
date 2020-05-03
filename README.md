@@ -33,6 +33,7 @@ TargetRoomID = "!jHFKHemgIAaDJekoxN:matrix-staging.ungleich.ch"
 MXID = "@fnux:matrix-staging.ungleich.ch"
 MXToken = "secretsecretsecret"
 HTTPPort = 9088
+HTTPAddress = ""
 I (master|✚1) ~/W/f/matrix-alertmanager-receiver » ./matrix-alertmanager-receiver -config config.toml
 2020/05/03 10:50:47 Reading configuration from config.toml.
 2020/05/03 10:50:47 Connecting to Matrix Homserver https://staging.matrix.ungleich.cloud as @fnux:matrix-staging.ungleich.ch.
