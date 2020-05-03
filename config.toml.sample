@@ -1,0 +1,5 @@
+Homeserver = "https://staging.matrix.ungleich.cloud"
+TargetRoomID = "!jHFKHemgIAaDJekoxN:matrix-staging.ungleich.ch"
+MXID = "@fnux:matrix-staging.ungleich.ch"
+MXToken = "secret"
+HTTPPort = 9088
