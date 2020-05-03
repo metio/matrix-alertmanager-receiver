@@ -1,4 +1,5 @@
-NAME=matrix-alertmanager-receiver
+NAME=yggdrasil-http-proxy
+PREFIX?=/usr/local
 
 all: build
 
@@ -7,6 +8,9 @@ getDeps:
 
 build:
 	go build
+
+install: build
+	install -m 0755 $(NAME) $(PREFIX)/bin/$(NAME)
 
 clean:
 	rm $(NAME)
