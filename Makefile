@@ -1,4 +1,4 @@
-NAME=yggdrasil-http-proxy
+NAME=matrix-alertmanager-receiver
 PREFIX?=/usr/local
 
 all: build
