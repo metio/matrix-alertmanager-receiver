@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"io/ioutil"
 	"encoding/json"
+	"github.com/prometheus/alertmanager/template"
 	"github.com/matrix-org/gomatrix"
 )
 
-type Alert struct {
-
+func generateMatrixMessageBody(alert template.Alert) string {
+	return alert.Status + " // " + alert.Annotations["summary"]
 }
 
 func main() {
@@ -77,16 +77,20 @@ You will find more details on: http://git.sr.ht/~fnux/matrix-prometheus-alertman
 			return
 		}
 
-		var alert Alert
-		reqBody, _ := ioutil.ReadAll(r.Body)
-		json.Unmarshal(reqBody, &alert)
+		payload := template.Data{}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+		}
 
-		// Check validity
+		logger.Printf("Received valid hook from %v", r.RemoteAddr)
 
-		logger.Printf("Sending message")
-		_, err := matrixClient.SendText(*target, "spouik spouik spouik")
-		if err != nil {
-			logger.Fatalf("Failed to send message: %v", err)
+		for _, alert := range payload.Alerts {
+			body := generateMatrixMessageBody(alert)
+			logger.Printf("> %v", body)
+			_, err := matrixClient.SendText(*target, body)
+			if err != nil {
+				logger.Fatalf("Could not forward to Matrix: %v", err)
+			}
 		}
 
 		w.WriteHeader(http.StatusOK)
