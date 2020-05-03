@@ -26,8 +26,18 @@ type Configuration struct {
 	HTTPToken string
 }
 
-func generateMatrixMessageBody(alert template.Alert) string {
-	return fmt.Sprintf("**%v** %v.", alert.Status, alert.Annotations["summary"])
+func getMatrixMessageFor(alert template.Alert) gomatrix.HTMLMessage {
+	var prefix string
+	switch alert.Status {
+	case "firing":
+		prefix = "<strong><font color=\"#ff0000\">FIRING</font></strong> "
+	case "resolved":
+		prefix = "<strong><font color=\"#33cc33\">RESOLVED</font></strong> "
+	default:
+		prefix = fmt.Sprintf("<strong>%v</strong> ", alert.Status)
+	}
+
+	return gomatrix.GetHTMLMessage("m.text", prefix + alert.Annotations["summary"])
 }
 
 func getMatrixClient(homeserver string, user string, token string, targetRoomID string) *gomatrix.Client {
@@ -78,9 +88,9 @@ func handleIncomingHooks( w http.ResponseWriter, r *http.Request,
 	logger.Printf("Received valid hook from %v", r.RemoteAddr)
 
 	for _, alert := range payload.Alerts {
-		body := generateMatrixMessageBody(alert)
-		logger.Printf("> %v", body)
-		_, err := matrixClient.SendText(targetRoomID, body)
+		msg := getMatrixMessageFor(alert)
+		logger.Printf("> %v", msg.Body)
+		_, err := matrixClient.SendMessageEvent(targetRoomID, "m.room.message", msg)
 		if err != nil {
 			logger.Printf(">> Could not forward to Matrix: %v", err)
 		}
