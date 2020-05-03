@@ -2,18 +2,18 @@ package main
 
 import (
 	"os"
-	"flag"
 	"fmt"
 	"log"
-	"io/ioutil"
+	"flag"
 	"net/http"
 	"encoding/json"
-	"github.com/prometheus/alertmanager/template"
 	"github.com/BurntSushi/toml"
 	"github.com/matrix-org/gomatrix"
+	"github.com/prometheus/alertmanager/template"
 )
 
 var logger *log.Logger
+var config Configuration
 
 type Configuration struct {
 	Homeserver string
@@ -27,7 +27,7 @@ type Configuration struct {
 }
 
 func generateMatrixMessageBody(alert template.Alert) string {
-	return alert.Status + " // " + alert.Annotations["summary"]
+	return fmt.Sprintf("**%v** %v.", alert.Status, alert.Annotations["summary"])
 }
 
 func getMatrixClient(homeserver string, user string, token string, targetRoomID string) *gomatrix.Client {
@@ -99,13 +99,7 @@ func main() {
 	flag.Parse()
 
 	logger.Printf("Reading configuration from %v.", *configPath)
-	raw, err := ioutil.ReadFile(*configPath)
-	if err != nil {
-		logger.Fatalf("Could not read configuration file (%v): %v", *configPath, err)
-	}
-
-	var config Configuration
-	md, err := toml.Decode(string(raw), &config)
+	md, err := toml.DecodeFile(*configPath, &config)
 	if err != nil {
 		logger.Fatalf("Could not parse configuration file (%v): %v", *configPath, err)
 	}
