@@ -37,7 +37,7 @@ func getMatrixMessageFor(alert template.Alert) gomatrix.HTMLMessage {
 		prefix = fmt.Sprintf("<strong>%v</strong> ", alert.Status)
 	}
 
-	return gomatrix.GetHTMLMessage("m.text", prefix + alert.Annotations["summary"])
+	return gomatrix.GetHTMLMessage("m.text", prefix + alert.Labels["name"] + " >> " + alert.Annotations["summary"])
 }
 
 func getMatrixClient(homeserver string, user string, token string, targetRoomID string) *gomatrix.Client {
