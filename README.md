@@ -13,8 +13,7 @@ Make sure you have [Go](https://golang.org/) installed (`golang-bin` package on
 Fedora).
 
 ```
-make getDeps
-make build
+go build -v
 ```
 
 ## Usage
