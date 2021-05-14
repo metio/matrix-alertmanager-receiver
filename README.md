@@ -1,11 +1,15 @@
 # matrix-alertmanager-receiver
 
+[![builds.sr.ht status](https://builds.sr.ht/~fnux/matrix-alertmanager-receiver.svg)](https://builds.sr.ht/~fnux/matrix-alertmanager-receiver?)
+
 Simple daemon - less than 150 lines of Go - forwarding
 [prometheus-alertmanager](https://duckduckgo.com/?q=prometheus+alertmanagaer&ia=software)
 events to matrix room. While there already is a
 [matrix-alertmanager](https://git.feneas.org/jaywink/matrix-alertmanager)
 project out there, use of the JavaScript ecosystem made it rather painful to
 use from my point of view.
+
+Feel free to directly send [me](https://fnux.ch/) patches and questions by email.
 
 ## Build
 
