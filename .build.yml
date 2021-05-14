@@ -1,0 +1,9 @@
+image: fedora/latest
+packages:
+- golang
+sources:
+- https://git.sr.ht/~fnux/matrix-alertmanager-receiver
+tasks:
+  - build: |
+      cd matrix-alertmanager-receiver
+      go build -v
