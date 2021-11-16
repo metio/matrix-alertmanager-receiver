@@ -1,0 +1,10 @@
+version: "3.3"
+services:
+  matrix-receiver:
+    build: .
+    image: matrix-alertmanager-receiver:latest
+    restart: always
+    volumes:
+      - ./config.toml:/etc/matrix-alertmanager-receiver.toml
+    ports:
+      - 9088:9088
