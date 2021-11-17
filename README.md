@@ -20,6 +20,15 @@ Fedora).
 go build -v
 ```
 
+## Container workflow
+
+Container-related logic lives under the `contrib/` directory. One can build a
+'docker' container using something along the lines of:
+
+```
+docker build -t matrix-alermanager-receiver:latest -f contrib/Dockerfile .
+```
+
 ## Usage
 
 Note: you are supposed to expose this service via a proxy such as Nginx,
