@@ -1,2 +1,4 @@
+.idea/
 matrix-alertmanager-receiver
-config.toml
+config.yaml
+http/http-client.private.env.json
