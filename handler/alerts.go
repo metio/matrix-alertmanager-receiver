@@ -58,7 +58,7 @@ func AlertsHandler(ctx context.Context, sendingFunc matrix.SendingFunc, templati
 
 		for _, alert := range data.Alerts {
 			alertsTotal.WithLabelValues(room).Inc()
-			if message := templatingFunc(alert, data); message != "" {
+			if message, templateError := templatingFunc(alert, data); templateError == nil {
 				slog.DebugContext(ctx, "Created message", slog.String("html", message))
 				sendingFunc(message, room)
 			}

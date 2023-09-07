@@ -33,7 +33,7 @@ var (
 	})
 )
 
-type TemplatingFunc func(alert amtemplate.Alert, data *amtemplate.Data) string
+type TemplatingFunc func(alert amtemplate.Alert, data *amtemplate.Data) (string, error)
 
 type templateData struct {
 	Alert             amtemplate.Alert
@@ -60,7 +60,7 @@ func CreateTemplatingFunc(ctx context.Context, configuration config.Templating) 
 	}
 	resolved := template.Must(template.New("resolved").Funcs(templateFunctions).Parse(resolvedTemplate))
 
-	return func(alert amtemplate.Alert, data *amtemplate.Data) string {
+	return func(alert amtemplate.Alert, data *amtemplate.Data) (string, error) {
 		selectedTemplate := firing
 		if alert.Status == string(model.AlertResolved) {
 			selectedTemplate = resolved
@@ -90,10 +90,10 @@ func CreateTemplatingFunc(ctx context.Context, configuration config.Templating) 
 		if err != nil {
 			templatingFailureTotal.Inc()
 			slog.ErrorContext(ctx, "Cannot template given data", slog.Any("error", err))
-			return ""
+			return "", err
 		}
 		templatingSuccessTotal.Inc()
-		return output.String()
+		return output.String(), nil
 	}
 }
 
