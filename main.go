@@ -1,135 +1,90 @@
+/*
+ * SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 package main
 
 import (
-	"os"
-	"fmt"
-	"log"
+	"context"
+	"errors"
 	"flag"
+	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sebhoss/matrix-alertmanager-receiver/alertmanager"
+	"github.com/sebhoss/matrix-alertmanager-receiver/config"
+	"github.com/sebhoss/matrix-alertmanager-receiver/handler"
+	"github.com/sebhoss/matrix-alertmanager-receiver/matrix"
+	"log/slog"
 	"net/http"
-	"encoding/json"
-	"github.com/BurntSushi/toml"
-	"github.com/matrix-org/gomatrix"
-	"github.com/prometheus/alertmanager/template"
+	"os"
+	"strings"
 )
 
-var logger *log.Logger
-var config Configuration
-
-type Configuration struct {
-	Homeserver string
-	TargetRoomID string
-
-	MXID string
-	MXToken string
-
-	HTTPPort int
-	HTTPAddress string
-}
-
-func getMatrixMessageFor(alert template.Alert) gomatrix.HTMLMessage {
-	var prefix string
-	switch alert.Status {
-	case "firing":
-		prefix = "<strong><font color=\"#ff0000\">FIRING</font></strong> "
-	case "resolved":
-		prefix = "<strong><font color=\"#33cc33\">RESOLVED</font></strong> "
-	default:
-		prefix = fmt.Sprintf("<strong>%v</strong> ", alert.Status)
-	}
-
-	return gomatrix.GetHTMLMessage("m.text", prefix + alert.Labels["name"] + " >> " + alert.Annotations["summary"])
-}
-
-func getMatrixClient(homeserver string, user string, token string, targetRoomID string) *gomatrix.Client {
-	logger.Printf("Connecting to Matrix Homserver %v as %v.", homeserver, user)
-	matrixClient, err := gomatrix.NewClient(homeserver, user, token)
-	if err != nil {
-		logger.Fatalf("Could not log in to Matrix Homeserver (%v): %v", homeserver, err)
-	}
-
-	joinedRooms, err := matrixClient.JoinedRooms()
-	if err != nil {
-		logger.Fatalf("Could not fetch Matrix rooms: %v", err)
-	}
-
-	alreadyJoinedTarget := false
-	for _, roomID := range joinedRooms.JoinedRooms {
-		if targetRoomID == roomID {
-			alreadyJoinedTarget = true
-		}
-	}
-
-	if alreadyJoinedTarget {
-		logger.Printf("%v is already part of %v.", user, targetRoomID,)
-	} else {
-		logger.Printf("Joining %v.", targetRoomID)
-		_, err := matrixClient.JoinRoom(targetRoomID, "", nil)
-		if err != nil {
-			logger.Fatalf("Failed to join %v: %v", targetRoomID, err)
-		}
-	}
-
-	return matrixClient
-}
-
-func handleIncomingHooks( w http.ResponseWriter, r *http.Request,
-	matrixClient *gomatrix.Client, targetRoomID string) {
-
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
-	payload := template.Data{}
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	}
-
-	logger.Printf("Received valid hook from %v", r.RemoteAddr)
-
-	for _, alert := range payload.Alerts {
-		msg := getMatrixMessageFor(alert)
-		logger.Printf("> %v", msg.Body)
-		_, err := matrixClient.SendMessageEvent(targetRoomID, "m.room.message", msg)
-		if err != nil {
-			logger.Printf(">> Could not forward to Matrix: %v", err)
-		}
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
 func main() {
-	// Initialize logger.
-	logger = log.New(os.Stdout, "", log.Flags())
-
-	// We use a configuration file since we need to specify secrets, and read
-	// everything else from it to keep things simple.
-	var configPath = flag.String("config", "/etc/matrix-alertmanager-receiver.toml", "Path to configuration file")
+	var configPath = flag.String("config-path", "", "Path to configuration file")
+	var logLevel = flag.String("log-level", "info", "The log level to use (debug, info, warn, error)")
 	flag.Parse()
 
-	logger.Printf("Reading configuration from %v.", *configPath)
-	md, err := toml.DecodeFile(*configPath, &config)
-	if err != nil {
-		logger.Fatalf("Could not parse configuration file (%v): %v", *configPath, err)
+	configureLogger(logLevel)
+	ctx := context.Background()
+
+	if configPath == nil || *configPath == "" {
+		slog.ErrorContext(ctx, "No --config-path parameter specified")
+		os.Exit(1)
 	}
+	slog.InfoContext(ctx, "CLI flags parsed",
+		slog.String("config-path", *configPath),
+		slog.String("log-level", *logLevel))
 
-	for _, field := range []string{"Homeserver", "MXID", "MXToken", "TargetRoomID", "HTTPPort"} {
-		if ! md.IsDefined(field) {
-			logger.Fatalf("Field %v is not set in config. Exiting.", field)
-		}
+	configuration := config.ParseConfiguration(ctx, *configPath)
+	if configuration == nil {
+		slog.ErrorContext(ctx, "Could not parse configuration")
+		os.Exit(1)
 	}
+	slog.InfoContext(ctx, "Configuration parsed", slog.Any("configuration", configuration.LogValue()))
 
-	// Initialize Matrix client.
-	matrixClient := getMatrixClient(
-		config.Homeserver, config.MXID, config.MXToken, config.TargetRoomID)
+	sendingFunc := matrix.CreatingSendingFunc(ctx, configuration.Matrix)
+	slog.InfoContext(ctx, "Matrix sending function created")
 
-	// Initialize HTTP server.
-	http.HandleFunc("/alert", func(w http.ResponseWriter, r *http.Request) {
-		handleIncomingHooks(w, r, matrixClient, config.TargetRoomID)
+	templatingFunc := alertmanager.CreateTemplatingFunc(ctx, configuration.Templating)
+	slog.InfoContext(ctx, "Message templating function created")
+
+	extractorFunc := handler.CreateRoomExtractor(configuration.HTTPServer.AlertsPathPrefix)
+	slog.InfoContext(ctx, "Room extracting function created")
+
+	http.HandleFunc(configuration.HTTPServer.AlertsPathPrefix, handler.AlertsHandler(ctx, sendingFunc, templatingFunc, extractorFunc))
+	if configuration.HTTPServer.MetricsEnabled {
+		http.Handle(configuration.HTTPServer.MetricsPath, promhttp.Handler())
+	}
+	slog.InfoContext(ctx, "Handlers configured")
+
+	var listenAddr = fmt.Sprintf("%v:%v", configuration.HTTPServer.Address, configuration.HTTPServer.Port)
+	err := http.ListenAndServe(listenAddr, nil)
+	if errors.Is(err, http.ErrServerClosed) {
+		slog.DebugContext(ctx, "Server closed")
+		os.Exit(0)
+	} else if err != nil {
+		slog.ErrorContext(ctx, "Error while serving", slog.Any("error", err))
+		os.Exit(1)
+	}
+}
+
+func configureLogger(logLevel *string) {
+	var level slog.Level
+	switch strings.ToLower(*logLevel) {
+	case "error":
+		level = slog.LevelError
+	case "warn":
+		level = slog.LevelWarn
+	case "debug":
+		level = slog.LevelDebug
+	case "info":
+	default:
+		level = slog.LevelInfo
+	}
+	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: level,
 	})
-
-	var listenAddr = fmt.Sprintf("%v:%v", config.HTTPAddress, config.HTTPPort)
-	logger.Printf("Listening for HTTP requests (webhooks) on %v", listenAddr)
-	logger.Fatal(http.ListenAndServe(listenAddr, nil))
+	slog.SetDefault(slog.New(logHandler))
 }
