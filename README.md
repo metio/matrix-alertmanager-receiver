@@ -117,7 +117,7 @@ templating:
 
   # template for alerts in status 'resolved', if not specified will use the firing-template
   resolved-template: '
-  <strong><font color="{{ .ComputedValues.color }}">{{ .Alert.Status | ToUpper }}</font></strong>{{ .Alert.Labels.name }}'
+    <strong><font color="{{ .ComputedValues.color }}">{{ .Alert.Status | ToUpper }}</font></strong>{{ .Alert.Labels.name }}'
 ```
 
 ### Templating
