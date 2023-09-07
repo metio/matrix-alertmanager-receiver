@@ -1,0 +1,51 @@
+http:
+  port: 12345
+matrix:
+  homeserver-url: https://matrix.example.com
+  user-id: "@user:matrix.example.com"
+  access-token: secret
+  room-mapping:
+    warnings: !somewhere:example.com
+templating:
+  external-url-mapping:
+    "alertmanager:9093": https://alertmanager.example.com
+  computed-values:
+    - values:
+        color: white
+    - values:
+        color: orange
+      when-matching-labels:
+        severity: warning
+    - values:
+        color: red
+      when-matching-labels:
+        severity: critical
+    - values:
+        color: limegreen
+      when-matching-status: resolved
+  firing-template: '
+    <p>
+      <strong><font color="{{ .ComputedValues.color }}">{{ .Alert.Status | ToUpper }}</font></strong>
+      {{ if .Alert.Labels.name }}
+        {{ .Alert.Labels.name }}
+      {{ else if .Alert.Labels.alertname }}
+        {{ .Alert.Labels.alertname }}
+      {{ end }}
+      >>
+      {{ if .Alert.Labels.severity }}
+        {{ .Alert.Labels.severity | ToUpper }}: 
+      {{ end }}
+      {{ if .Alert.Annotations.description }}
+        {{ .Alert.Annotations.description }}
+      {{ else if .Alert.Annotations.summary }}
+        {{ .Alert.Annotations.summary }}
+      {{ end }}
+      >>
+      {{ if .Alert.Annotations.runbook }}
+        <a href="{{ .Alert.Annotations.runbook }}">Runbook</a> | 
+      {{ end }}
+      {{ if .Alert.Annotations.dashboard }}
+        <a href="{{ .Alert.Annotations.dashboard }}">Dashboard</a> | 
+      {{ end }}
+      <a href="{{ .SilenceURL }}">Silence</a>
+    </p>'
