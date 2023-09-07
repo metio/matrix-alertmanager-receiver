@@ -1,56 +1,270 @@
 # matrix-alertmanager-receiver
 
-[![builds.sr.ht status](https://builds.sr.ht/~fnux/matrix-alertmanager-receiver.svg)](https://builds.sr.ht/~fnux/matrix-alertmanager-receiver?)
+[Alertmanager client](https://prometheus.io/docs/alerting/latest/clients/) that forwards alerts to a [Matrix](https://matrix.org/) room. This is a fork of https://git.sr.ht/~fnux/matrix-alertmanager-receiver with the following changes:
 
-Simple daemon - less than 150 lines of Go - forwarding
-[prometheus-alertmanager](https://duckduckgo.com/?q=prometheus+alertmanagaer&ia=software)
-events to matrix room. While there already is a
-[matrix-alertmanager](https://git.feneas.org/jaywink/matrix-alertmanager)
-project out there, use of the JavaScript ecosystem made it rather painful to
-use from my point of view.
-
-Feel free to directly send [me](https://fnux.ch/) patches and questions by email.
-
-## Build
-
-Make sure you have [Go](https://golang.org/) installed (`golang-bin` package on
-Fedora).
-
-```
-go build -v
-```
-
-## Container workflow
-
-Container-related logic lives under the `contrib/` directory. One can build a
-'docker' container using something along the lines of:
-
-```
-docker build -t matrix-alermanager-receiver:latest -f contrib/Dockerfile .
-```
+- Add templating mechanism for alerts based on Golang's [html/template](https://pkg.go.dev/html/template)
+- Allow arbitrary rooms as receivers
+- Mapping of `ExternalURL` values for misconfigured Alertmanager instances
+- Computation of `SilenceURL` and arbitrary other values.
+- Replace TOML with YAML format
+- Add Prometheus metrics for received alerts & send notifications
+- Use the [slog](https://pkg.go.dev/log/slog) package for structured logging
 
 ## Usage
 
-Note: you are supposed to expose this service via a proxy such as Nginx,
-providing basic HTTP authentication.
+Configure your Alertmanager(s) to use this service as a webhook receiver like this:
+
+```yaml
+receivers:
+  - name: matrix
+    webhook_configs:
+      - url: "http://example.com:<port>/<alerts-path-prefix>/{roomID}"
+```
+
+The values for `<port>` and `<alerts-path-prefix>` are configuration options of this service and need to match whatever you wrote into your Alertmanager configuration. The value for `{roomID}` is something that only exists in your Alertmanager configuration and must be a valid Matrix room ID (not an alias). The following snippet shows the same configuration with all options specified:
+
+```yaml
+receivers:
+  - name: some-room
+    webhook_configs:
+      - url: "http://example.com:12345/alerts/!PFFZ6G9E07n2tnbiUD:matrix.example.com"
+  - name: other-room
+    webhook_configs:
+      - url: "http://example.com:12345/alerts/!HJFZ28f4jKJfmaHLEk:matrix.example.com"
+```
+
+Note that you can use the `matrix.room-mapping` configuration option to expose 'pretty' URLs and hide those Matrix room IDs from your Alertmanager configuration. See below for details.
+
+## CLI Arguments
+
+This service is a single binary which provides two CLI arguments:
+
+- `--config-path`: Specify the path to the configuration file to use.
+- `--log-level`: Specify the log level to use. Possible values are error, warn, debug, info. Defaults to info.
+
+## Configuration
+
+```yaml
+# configuration of the HTTP server
+http:
+  address: 127.0.0.1          # bind address for this service. Can be left unspecified to bind on all interfaces
+  port: 12345                 # port used by this service
+  alerts-path-prefix: /alerts # URL path for the webhook receiver called by an Alertmanager. Defaults to /alerts
+  metrics-path: /metrics      # URL path to collect metrics. Defaults to /metrics
+  metrics-enabled: true       # Whether to enable metrics or not. Defaults to false
+
+# configuration for the Matrix connection
+matrix:
+  homeserver-url: https://matrix.example.com        # FQDN of the homeserver
+  user-id: "@user:matrix.example.com"               # ID of the user used by this service
+  access-token: secret                              # Access token for the user ID
+  # define short names for Matrix room ID
+  room-mapping:
+    simple-name: "!qohfwef7qwerf:example.com"
+
+# configuration of the templating features
+templating:
+  # mapping of ExternalURL values
+  external-url-mapping:
+    # key is the original value taken from the Alertmanager payload
+    # value is the mapped value which will be available as '.ExternalURL' in templates
+    "alertmanager:9093": https://alertmanager.example.com
+
+  # computation of arbitrary values based on matching alert annotations, labels, or status
+  # values will be evaluated top to bottom, last entry wins
+  computed-values:
+    - values: # always set 'color' to 'yellow'
+        color: yellow
+    - values: # set 'color' to 'orange' when alert label 'severity' is 'warning'
+        color: orange
+      when-matching-labels:
+        severity: warning
+    - values: # set 'color' to 'red' when alert label 'severity' is 'critical'
+        color: red
+      when-matching-labels:
+        severity: critical
+    - values: # set 'color' to 'green' when alert status is 'resolved'
+        color: green
+      when-matching-status: resolved
+
+  # template for alerts in status 'firing'
+  firing-template: '
+    <p>
+      <strong><font color="{{ .ComputedValues.color }}">{{ .Alert.Status | ToUpper }}</font></strong>
+      {{ if .Alert.Labels.name }}
+        {{ .Alert.Labels.name }}
+      {{ else if .Alert.Labels.alertname }}
+        {{ .Alert.Labels.alertname }}
+      {{ end }}
+      >>
+      {{ if .Alert.Labels.severity }}
+        {{ .Alert.Labels.severity | ToUpper }}: 
+      {{ end }}
+      {{ if .Alert.Annotations.description }}
+        {{ .Alert.Annotations.description }}
+      {{ else if .Alert.Annotations.summary }}
+        {{ .Alert.Annotations.summary }}
+      {{ end }}
+      >>
+      {{ if .Alert.Annotations.runbook }}
+        <a href="{{ .Alert.Annotations.runbook }}">Runbook</a> | 
+      {{ end }}
+      {{ if .Alert.Annotations.dashboard }}
+        <a href="{{ .Alert.Annotations.dashboard }}">Dashboard</a> | 
+      {{ end }}
+      <a href="{{ .SilenceURL }}">Silence</a>
+    </p>'
+
+  # template for alerts in status 'resolved', if not specified will use the firing-template
+  resolved-template: '
+  <strong><font color="{{ .ComputedValues.color }}">{{ .Alert.Status | ToUpper }}</font></strong>{{ .Alert.Labels.name }}'
+```
+
+### Templating
+
+Template are written using Golang's [html/template](https://pkg.go.dev/html/template) feature. The following template values are available:
+
+- `Alert`: The [alert data](https://prometheus.io/docs/alerting/latest/notifications/#alert) as provided by the Alertmanager.
+- `GroupLabels`: The GroupLabels value of the original [payload](https://prometheus.io/docs/alerting/latest/notifications/#data) sent by the Alertmanager.
+- `CommonLabels`: The CommonLabels value of the original [payload](https://prometheus.io/docs/alerting/latest/notifications/#data) sent by the Alertmanager.
+- `CommonAnnotations`: The CommonAnnotations value of the original [payload](https://prometheus.io/docs/alerting/latest/notifications/#data) sent by the Alertmanager.
+- `ExternalURL`: The ExternalURL value of the original [payload](https://prometheus.io/docs/alerting/latest/notifications/#data) sent by the Alertmanager mapped by the mapping section in the configuration file. If no entry exists in the map, the original value will be available as-is in the template.
+- `SilenceURL`: The calculated URL to silence an alert. This should be used like this `<a href="{{ .SilenceURL }}">Silence</a>` or similar.
+- `ComputedValues`: Map of computed values defined in the configuration file.
+
+#### ExternalURL
+
+The `ExternalURL` as sent by an Alertmanager contains the backlink to the Alertmanager that sent the notification. In some cases you might want/need to map these values to something that is externally available. Use the `templating.external-url-mapping` configuration key for these cases. Each key is the full original value as sent by an Alertmanager and each value is what you want to use in your templates.
+
+```yaml
+templating:
+  external-url-mapping:
+    "alertmanager:9093": https://alertmanager.example.com
+    "alerts:12345": https://alerts.example.com
+```
+
+Using the above configuration, all alerts whose `ExternalURL` original value is `alertmanager:9093` will be `https://alertmanager.example.com` and `alerts:12345` will be mapped to `https://alerts.example.com`.
+
+#### Computed Values
+
+You can make additional arbitrary values available in your templates by using the `templating.computed-values` key. There are several ways to configure when these values are available in your template and which value they have.
+
+```yaml
+templating:
+  computed-values:
+    - values:
+        color: yellow
+        something: value
+        another: yesplease
+```
+
+The above configuration adds the `ComputedValues.color`, `ComputedValues.something`, and `ComputedValues.another` with their respective values to your template.
+
+```yaml
+templating:
+  computed-values:
+    - values:
+        color: yellow
+        something: value
+        another: yesplease
+      when-matching-labels:
+        severity: warning
+        thanos: global
+```
+
+The above configuration adds the same key/values only if an alert contains the label `severity` with value `warning` and another label called `thanos` with value `global`.
+
+```yaml
+templating:
+  computed-values:
+    - values:
+        color: yellow
+        something: value
+        another: yesplease
+      when-matching-annotations:
+        prometheus: production
+```
+
+The above configuration adds the same key/values only if an alert contains the annotation `prometheus` with value `production`.
+
+```yaml
+templating:
+  computed-values:
+    - values:
+        color: yellow
+        something: value
+        another: yesplease
+      when-matching-status: resolved
+```
+
+The above configuration adds the key/values only if an alert has the status `resolved`.
+
+```yaml
+templating:
+  computed-values:
+    - values:
+        color: yellow
+        something: value
+        another: yesplease
+      when-matching-labels:
+        severity: warning
+        thanos: global
+      when-matching-annotations:
+        prometheus: production
+      when-matching-status: resolved
+```
+
+The above configuration matches on labels, annotations, and alert status. Only if all specified matchers evaluate to true, the values will be added to your template.
+
+#### Functions
+
+Besides the functions available in plain Golang templates, the following functions can be used in all templates:
+
+- `ToUpper`: Calls the [strings.ToUpper](https://pkg.go.dev/strings#ToUpper) function.
+- `ToLower`: Calls the [strings.ToLower](https://pkg.go.dev/strings#ToLower) function.
+
+Please open a ticket in case you need additional functions from the Golang SDK.
+
+## Metrics
+
+The following metrics are available at the `/metrics` endpoint of this service in a Prometheus compatible format:
 
 ```
-I (master|✚1) ~/W/f/matrix-alertmanager-receiver » ./matrix-alertmanager-receiver --help
-Usage of ./matrix-alertmanager-receiver:
-  -config string
-    	Path to configuration file (default "/etc/matrix-alertmanager-receiver.toml")
-I [2] (master|✚1) ~/W/f/matrix-alertmanager-receiver » cat config.toml
-Homeserver = "https://staging.matrix.ungleich.cloud"
-TargetRoomID = "!jHFKHemgIAaDJekoxN:matrix-staging.ungleich.ch"
-MXID = "@fnux:matrix-staging.ungleich.ch"
-MXToken = "secretsecretsecret"
-HTTPPort = 9088
-HTTPAddress = ""
-I (master|✚1) ~/W/f/matrix-alertmanager-receiver » ./matrix-alertmanager-receiver -config config.toml
-2020/05/03 10:50:47 Reading configuration from config.toml.
-2020/05/03 10:50:47 Connecting to Matrix Homserver https://staging.matrix.ungleich.cloud as @fnux:matrix-staging.ungleich.ch.
-2020/05/03 10:50:47 @fnux:matrix-staging.ungleich.ch is already part of !jHFKHemgIAaDJekoxN:matrix-staging.ungleich.ch.
-2020/05/03 10:50:47 Listening for HTTP requests (webhooks) on :9088
-2020/05/03 10:50:55 Received valid hook from [::1]:44886
-2020/05/03 10:50:55 > FIRING instance example1 is down
+# The total number of HTTP requests received at the /alerts endpoint
+matrix_alertmanager_receiver_http_requests_total
+
+# The total number of HTTP requests using unsupported HTTP methods received at the /alerts endpoint
+matrix_alertmanager_receiver_unsupported_http_method_total
+
+# The total number of HTTP requests that contain invalid payload data at the /alerts endpoint
+matrix_alertmanager_receiver_invalid_payload_total
+
+# The total number of alerts processed
+matrix_alertmanager_receiver_alerts_total
+
+# The total number of successful templating operations
+matrix_alertmanager_receiver_templating_success_total
+
+# The total number of failed templating operations
+matrix_alertmanager_receiver_templating_failure_total
+
+# The total number of failed join room operations
+matrix_alertmanager_receiver_join_room_failure_total
+
+# The total number of successful join room operations
+matrix_alertmanager_receiver_join_room_success_total
+
+# The total number of failed send operations
+matrix_alertmanager_receiver_send_failure_total
+
+# The total number of successful send operations
+matrix_alertmanager_receiver_send_success_total
+```
+
+## Building
+
+In order to build this project, make sure to install at least Golang 1.21 and run the following command:
+
+```shell
+$ CGO_ENABLED=0 go build -o matrix-alertmanager-receiver
 ```
