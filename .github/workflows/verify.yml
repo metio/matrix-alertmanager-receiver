@@ -28,7 +28,6 @@ on:
 jobs:
   test:
     name: Tests on ${{ matrix.os }}
-    needs: build
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
