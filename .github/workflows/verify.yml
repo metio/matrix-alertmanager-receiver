@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: The terraform-provider-git Authors
+# SPDX-License-Identifier: 0BSD
+
+name: Verify Commits
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - .github/workflows/verify.yml
+      - go.mod
+      - go.sum
+      - main.go
+      - alertmanager/**
+      - config/**
+      - handler/**
+      - matrix/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - .github/workflows/verify.yml
+      - go.mod
+      - go.sum
+      - main.go
+      - alertmanager/**
+      - config/**
+      - handler/**
+      - matrix/**
+jobs:
+  test:
+    name: Tests on ${{ matrix.os }}
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - windows-latest
+          - ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v4
+      - id: setup_go
+        name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+          cache: true
+      - id: tests
+        name: Run Tests
+        run: go test ./...
