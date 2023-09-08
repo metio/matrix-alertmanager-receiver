@@ -3,11 +3,11 @@
 [Alertmanager client](https://prometheus.io/docs/alerting/latest/clients/) that forwards alerts to a [Matrix](https://matrix.org/) room. This is a fork of https://git.sr.ht/~fnux/matrix-alertmanager-receiver with the following changes:
 
 - Add templating mechanism for alerts based on Golang's [html/template](https://pkg.go.dev/html/template)
-- Allow arbitrary rooms as receivers
+- Allow arbitrary rooms as receivers with optional pretty URLs
 - Mapping of `ExternalURL` values for misconfigured Alertmanager instances
 - Computation of `SilenceURL` and arbitrary other values.
 - Replace TOML with YAML format
-- Add Prometheus metrics for received alerts & send notifications
+- Add Prometheus metrics for received alerts, sent notifications, and templating failures
 - Use the [slog](https://pkg.go.dev/log/slog) package for structured logging
 
 ## Usage
