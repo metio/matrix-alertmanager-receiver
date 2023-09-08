@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
 # matrix-alertmanager-receiver
 
 [Alertmanager client](https://prometheus.io/docs/alerting/latest/clients/) that forwards alerts to a [Matrix](https://matrix.org/) room. This is a fork of https://git.sr.ht/~fnux/matrix-alertmanager-receiver with the following changes:

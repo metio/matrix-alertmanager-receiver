@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: matrix-alertmanager-receiver
+Upstream-Contact: Sebastian Hoß <seb@hoß.de>
+Source: https://github.com/metio/matrix-alertmanager-receiver
+
+Files: http/*
+Copyright: The matrix-alertmanager-receiver Authors
+License: GPL-3.0-or-later

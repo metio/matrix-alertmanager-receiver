@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: The terraform-provider-git Authors
-# SPDX-License-Identifier: 0BSD
+# SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 name: Verify Commits
 on:
