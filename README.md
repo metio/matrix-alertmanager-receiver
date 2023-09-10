@@ -26,7 +26,7 @@ receivers:
       - url: "http://example.com:<port>/<alerts-path-prefix>/{roomID}"
 ```
 
-The values for `<port>` and `<alerts-path-prefix>` are configuration options of this service and need to match whatever you wrote into your Alertmanager configuration. The value for `{roomID}` is something that only exists in your Alertmanager configuration and must be a valid Matrix room ID (not an alias). The following snippet shows the same configuration with all options specified:
+The values for `<port>` and `<alerts-path-prefix>` are configuration options of this service and need to match whatever you wrote into your Alertmanager configuration. The value for `{roomID}` must be a valid Matrix room ID or a pre-defined pretty URL (see below). The following snippet shows the same configuration with all options specified:
 
 ```yaml
 receivers:
@@ -38,7 +38,17 @@ receivers:
       - url: "http://example.com:12345/alerts/!HJFZ28f4jKJfmaHLEk:matrix.example.com"
 ```
 
-Note that you can use the `matrix.room-mapping` configuration option to expose 'pretty' URLs and hide those Matrix room IDs from your Alertmanager configuration. See below for details.
+Note that you can use the `matrix.room-mapping` configuration option to expose 'pretty' URLs and hide those Matrix room IDs from your Alertmanager configuration:
+
+```yaml
+receivers:
+  - name: some-room
+    webhook_configs:
+      - url: "http://example.com:12345/alerts/pager"
+  - name: other-room
+    webhook_configs:
+      - url: "http://example.com:12345/alerts/ticket"
+```
 
 ## CLI Arguments
 
@@ -73,7 +83,7 @@ templating:
   external-url-mapping:
     # key is the original value taken from the Alertmanager payload
     # value is the mapped value which will be available as '.ExternalURL' in templates
-    "alertmanager:9093": https://alertmanager.example.com
+    "http://alertmanager:9093": https://alertmanager.example.com
 
   # computation of arbitrary values based on matching alert annotations, labels, or status
   # values will be evaluated top to bottom, last entry wins
@@ -144,11 +154,11 @@ The `ExternalURL` as sent by an Alertmanager contains the backlink to the Alertm
 ```yaml
 templating:
   external-url-mapping:
-    "alertmanager:9093": https://alertmanager.example.com
-    "alerts:12345": https://alerts.example.com
+    "http://alertmanager:9093": https://alertmanager.example.com
+    "http://alerts:12345": https://alerts.example.com
 ```
 
-Using the above configuration, all alerts whose `ExternalURL` original value is `alertmanager:9093` will be `https://alertmanager.example.com` and `alerts:12345` will be mapped to `https://alerts.example.com`.
+Using the above configuration, all alerts whose `ExternalURL` original value is `http://alertmanager:9093` will be `https://alertmanager.example.com` and `http://alerts:12345` will be mapped to `https://alerts.example.com`.
 
 #### Computed Values
 
@@ -265,6 +275,17 @@ matrix_alertmanager_receiver_send_failure_total
 # The total number of successful send operations
 matrix_alertmanager_receiver_send_success_total
 ```
+
+## Alternatives
+
+It's highly likely that this project does not meet your needs. Here is a list of potential alternatives you might want to consider:
+
+- https://github.com/matrix-org/matrix-hookshot
+- https://github.com/jaywink/matrix-alertmanager
+- https://github.com/dkess/alertmanager_matrix
+- https://gitlab.com/albalitz/alertmanager-matrix
+- https://github.com/silkeh/alertmanager_matrix
+- https://github.com/metalmatze/alertmanager-bot
 
 ## Building
 
