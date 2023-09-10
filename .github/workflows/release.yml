@@ -17,9 +17,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - id: last_release
+        name: Fetch last release info
+        run: echo "tag=$(gh release view --json tagName --jq '.tagName')" >> $GITHUB_OUTPUT
       - id: commits
         name: Count Commits
-        run: echo "count=$(git rev-list --count HEAD --since='last week')" >> $GITHUB_OUTPUT
+        run: echo "count=$(git rev-list --count ${{ steps.last_release.outputs.tag }}..HEAD)" >> $GITHUB_OUTPUT
       - id: release
         name: Create Release Version
         if: steps.commits.outputs.count > 0
