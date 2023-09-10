@@ -285,6 +285,7 @@ It's highly likely that this project does not meet your needs. Here is a list of
 - https://github.com/dkess/alertmanager_matrix
 - https://gitlab.com/albalitz/alertmanager-matrix
 - https://github.com/silkeh/alertmanager_matrix
+- https://github.com/ultram4rine/alerter
 - https://github.com/metalmatze/alertmanager-bot
 
 ## Building
