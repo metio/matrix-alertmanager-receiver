@@ -52,7 +52,7 @@ jobs:
       - id: goreleaser
         name: Run GoReleaser
         if: steps.commits.outputs.count > 0
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v5
         with:
           version: latest
           args: release --clean
