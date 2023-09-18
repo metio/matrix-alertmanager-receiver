@@ -149,7 +149,7 @@ Template are written using Golang's [html/template](https://pkg.go.dev/html/temp
 
 #### ExternalURL
 
-The `ExternalURL` as sent by an Alertmanager contains the backlink to the Alertmanager that sent the notification. In some cases you might want/need to map these values to something that is externally available. Use the `templating.external-url-mapping` configuration key for these cases. Each key is the full original value as sent by an Alertmanager and each value is what you want to use in your templates.
+The `ExternalURL` as sent by an Alertmanager contains the backlink to the Alertmanager that sent the notification. In general, you should set the correct URL your Alertmanager can be reached with using the `--web.external-url` Alertmanager CLI flag. In case you cannot change the configuration of your Alertmanager, use the `templating.external-url-mapping` configuration of this alertmanager-receiver. Each key is the full original value as sent by an Alertmanager and each value is what you want to use in your templates.
 
 ```yaml
 templating:
