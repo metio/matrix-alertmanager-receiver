@@ -13,7 +13,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/common/model"
-	"github.com/sebhoss/matrix-alertmanager-receiver/config"
+	"github.com/sebhoss/matrix-alertmanager-receiver/internal/config"
 	"html/template"
 	"log/slog"
 	"maps"

@@ -9,8 +9,8 @@ import (
 	"context"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/sebhoss/matrix-alertmanager-receiver/alertmanager"
-	"github.com/sebhoss/matrix-alertmanager-receiver/matrix"
+	"github.com/sebhoss/matrix-alertmanager-receiver/internal/alertmanager"
+	"github.com/sebhoss/matrix-alertmanager-receiver/internal/matrix"
 	"log/slog"
 	"net/http"
 )

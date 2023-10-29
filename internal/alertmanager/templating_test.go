@@ -7,7 +7,7 @@ package alertmanager
 
 import (
 	amtemplate "github.com/prometheus/alertmanager/template"
-	"github.com/sebhoss/matrix-alertmanager-receiver/config"
+	"github.com/sebhoss/matrix-alertmanager-receiver/internal/config"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

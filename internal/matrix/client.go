@@ -10,7 +10,7 @@ import (
 	"github.com/matrix-org/gomatrix"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/sebhoss/matrix-alertmanager-receiver/config"
+	"github.com/sebhoss/matrix-alertmanager-receiver/internal/config"
 	"log/slog"
 	"os"
 	"slices"
