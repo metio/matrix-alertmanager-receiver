@@ -42,6 +42,7 @@ type templateData struct {
 	CommonAnnotations map[string]string `json:"commonAnnotations"`
 	SilenceURL        string
 	ExternalURL       string
+	GeneratorURL      string
 	ComputedValues    map[string]string
 }
 
@@ -66,8 +67,13 @@ func CreateTemplatingFunc(ctx context.Context, configuration config.Templating) 
 			selectedTemplate = resolved
 		}
 
-		externalUrl := externalURL(data.ExternalURL, configuration.ExternalURLMapping)
+		externalUrl := maybeMapValue(data.ExternalURL, configuration.ExternalURLMapping)
 		slog.DebugContext(ctx, "ExternalURL mapped",
+			slog.String("original-url", data.ExternalURL),
+			slog.String("mapped-url", externalUrl))
+
+		generatorUrl := maybeMapValue(alert.GeneratorURL, configuration.GeneratorURLMapping)
+		slog.DebugContext(ctx, "GeneratorURL mapped",
 			slog.String("original-url", data.ExternalURL),
 			slog.String("mapped-url", externalUrl))
 
@@ -85,6 +91,7 @@ func CreateTemplatingFunc(ctx context.Context, configuration config.Templating) 
 			CommonAnnotations: data.GroupLabels,
 			SilenceURL:        silenceUrl,
 			ExternalURL:       externalUrl,
+			GeneratorURL:      generatorUrl,
 			ComputedValues:    values,
 		})
 		if err != nil {
@@ -139,7 +146,7 @@ func computeValues(alert amtemplate.Alert, values []config.ComputedValue) map[st
 	return computedValues
 }
 
-func externalURL(original string, mapping map[string]string) string {
+func maybeMapValue(original string, mapping map[string]string) string {
 	if replacement, ok := mapping[original]; ok {
 		return replacement
 	}

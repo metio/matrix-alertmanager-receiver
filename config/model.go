@@ -57,10 +57,11 @@ func (m *Matrix) LogValue() slog.Value {
 }
 
 type Templating struct {
-	ExternalURLMapping KeyValue        `json:"external-url-mapping"`
-	ComputedValues     []ComputedValue `json:"computed-values"`
-	Firing             string          `json:"firing-template"`
-	Resolved           string          `json:"resolved-template"`
+	ExternalURLMapping  KeyValue        `json:"external-url-mapping"`
+	GeneratorURLMapping KeyValue        `json:"generator-url-mapping"`
+	ComputedValues      []ComputedValue `json:"computed-values"`
+	Firing              string          `json:"firing-template"`
+	Resolved            string          `json:"resolved-template"`
 }
 
 func (t *Templating) LogValue() slog.Value {
