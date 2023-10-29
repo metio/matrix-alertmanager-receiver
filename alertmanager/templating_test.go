@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestExternalURL(t *testing.T) {
+func TestMaybeMapValue(t *testing.T) {
 	testCases := map[string]struct {
 		original string
 		mapping  map[string]string
@@ -60,7 +60,7 @@ func TestExternalURL(t *testing.T) {
 	}
 	for name, testCase := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, testCase.expected, externalURL(testCase.original, testCase.mapping))
+			assert.Equal(t, testCase.expected, maybeMapValue(testCase.original, testCase.mapping))
 		})
 	}
 }

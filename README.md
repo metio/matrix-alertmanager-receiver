@@ -10,6 +10,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 - Add templating mechanism for alerts based on Golang's [html/template](https://pkg.go.dev/html/template)
 - Allow arbitrary rooms as receivers with optional pretty URLs
 - Mapping of `ExternalURL` values for misconfigured Alertmanager instances
+- Mapping of `GeneratorURL` values for misconfigured Prometheus instances
 - Computation of `SilenceURL` and arbitrary other values.
 - Replace TOML with YAML format
 - Add Prometheus metrics for received alerts, sent notifications, and templating failures
@@ -23,7 +24,7 @@ Configure your Alertmanager(s) to use this service as a webhook receiver like th
 receivers:
   - name: matrix
     webhook_configs:
-      - url: "http://example.com:<port>/<alerts-path-prefix>/{roomID}"
+      - url: "https://example.com:<port>/<alerts-path-prefix>/{roomID}"
 ```
 
 The values for `<port>` and `<alerts-path-prefix>` are configuration options of this service and need to match whatever you wrote into your Alertmanager configuration. The value for `{roomID}` must be a valid Matrix room ID or a pre-defined pretty URL (see below). The following snippet shows the same configuration with all options specified:
@@ -32,10 +33,10 @@ The values for `<port>` and `<alerts-path-prefix>` are configuration options of 
 receivers:
   - name: some-room
     webhook_configs:
-      - url: "http://example.com:12345/alerts/!PFFZ6G9E07n2tnbiUD:matrix.example.com"
+      - url: "https://example.com:12345/alerts/!PFFZ6G9E07n2tnbiUD:matrix.example.com"
   - name: other-room
     webhook_configs:
-      - url: "http://example.com:12345/alerts/!HJFZ28f4jKJfmaHLEk:matrix.example.com"
+      - url: "https://example.com:12345/alerts/!HJFZ28f4jKJfmaHLEk:matrix.example.com"
 ```
 
 Note that you can use the `matrix.room-mapping` configuration option to expose 'pretty' URLs and hide those Matrix room IDs from your Alertmanager configuration:
@@ -44,10 +45,10 @@ Note that you can use the `matrix.room-mapping` configuration option to expose '
 receivers:
   - name: some-room
     webhook_configs:
-      - url: "http://example.com:12345/alerts/pager"
+      - url: "https://example.com:12345/alerts/pager"
   - name: other-room
     webhook_configs:
-      - url: "http://example.com:12345/alerts/ticket"
+      - url: "https://example.com:12345/alerts/ticket"
 ```
 
 ## CLI Arguments
@@ -84,6 +85,11 @@ templating:
     # key is the original value taken from the Alertmanager payload
     # value is the mapped value which will be available as '.ExternalURL' in templates
     "http://alertmanager:9093": https://alertmanager.example.com
+  # mapping of GeneratorURL values
+  generator-url-mapping:
+    # key is the original value taken from the Alertmanager payload
+    # value is the mapped value which will be available as '.GeneratorURL' in templates
+    "http://prometheus:8080": https://prometheus.example.com
 
   # computation of arbitrary values based on matching alert annotations, labels, or status
   # values will be evaluated top to bottom, last entry wins
@@ -144,6 +150,7 @@ Template are written using Golang's [html/template](https://pkg.go.dev/html/temp
 - `CommonLabels`: The CommonLabels value of the original [payload](https://prometheus.io/docs/alerting/latest/notifications/#data) sent by the Alertmanager.
 - `CommonAnnotations`: The CommonAnnotations value of the original [payload](https://prometheus.io/docs/alerting/latest/notifications/#data) sent by the Alertmanager.
 - `ExternalURL`: The ExternalURL value of the original [payload](https://prometheus.io/docs/alerting/latest/notifications/#data) sent by the Alertmanager mapped by the mapping section in the configuration file. If no entry exists in the map, the original value will be available as-is in the template.
+- `GeneratorURL`: The GeneratorURL value of the original [alert data](https://prometheus.io/docs/alerting/latest/notifications/#alert) send by the Alertmanager mapped by the mapping section in the configuration file. If no entry exists in the map, the original value will be available as-is in the template.
 - `SilenceURL`: The calculated URL to silence an alert. This should be used like this `<a href="{{ .SilenceURL }}">Silence</a>` or similar.
 - `ComputedValues`: Map of computed values defined in the configuration file.
 
@@ -159,6 +166,19 @@ templating:
 ```
 
 Using the above configuration, all alerts whose `ExternalURL` original value is `http://alertmanager:9093` will be `https://alertmanager.example.com` and `http://alerts:12345` will be mapped to `https://alerts.example.com`.
+
+#### GeneratorURL
+
+The `GeneratorURL` as sent by an Alertmanager contains the backlink to the Prometheus instance that created the alert. In general, you should set the correct URL your Prometheus can be reached with using the `--web.external-url` Prometheus CLI flag. In case you cannot change the configuration of your Prometheus, use the `templating.generator-url-mapping` configuration of this alertmanager-receiver. Each key is the full original value as sent by a Prometheus and each value is what you want to use in your templates.
+
+```yaml
+templating:
+  generator-url-mapping:
+    "http://prometheus:8080": https://prometheus.example.com
+    "http://metrics:12345": https://metrics.example.com
+```
+
+Using the above configuration, all alerts whose `GeneratorURL` original value is `http://prometheus:8080` will be `https://prometheus.example.com` and `http://metrics:12345` will be mapped to `https://metrics.example.com`.
 
 #### Computed Values
 
