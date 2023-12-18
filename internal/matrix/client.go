@@ -84,9 +84,7 @@ func fetchJoinedRooms(ctx context.Context, client *gomatrix.Client) {
 		slog.ErrorContext(ctx, "Could not fetch Matrix rooms", slog.Any("error", err))
 		os.Exit(1)
 	}
-	for _, roomID := range joinedRooms.JoinedRooms {
-		joinedRoomIDs = append(joinedRoomIDs, roomID)
-	}
+	joinedRoomIDs = append(joinedRoomIDs, joinedRooms.JoinedRooms...)
 }
 
 func joinRoom(ctx context.Context, client *gomatrix.Client, roomToJoin string) error {
