@@ -3,39 +3,11 @@
 
 name: Verify Commits
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - .github/workflows/verify.yml
-      - go.mod
-      - go.sum
-      - main.go
-      - alertmanager/**
-      - config/**
-      - handler/**
-      - matrix/**
   pull_request:
     branches: [ main ]
-    paths:
-      - .github/workflows/verify.yml
-      - go.mod
-      - go.sum
-      - main.go
-      - alertmanager/**
-      - config/**
-      - handler/**
-      - matrix/**
 jobs:
-  test:
-    name: Tests on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - macos-latest
-          - windows-latest
-          - ubuntu-latest
+  verify:
+    runs-on: ubuntu-latest
     steps:
       - id: checkout
         name: Checkout
@@ -46,6 +18,11 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
+      - id: lint
+        name: Lint Go Code
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
       - id: tests
         name: Run Tests
-        run: go test ./...
+        run: go test -v -cover ./...

@@ -3,6 +3,10 @@ Upstream-Name: matrix-alertmanager-receiver
 Upstream-Contact: Sebastian Hoß <seb@hoß.de>
 Source: https://github.com/metio/matrix-alertmanager-receiver
 
+Files: .idea/*
+Copyright: The matrix-alertmanager-receiver Authors
+License: GPL-3.0-or-later
+
 Files: http/*
 Copyright: The matrix-alertmanager-receiver Authors
 License: GPL-3.0-or-later

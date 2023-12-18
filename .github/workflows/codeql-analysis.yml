@@ -4,7 +4,7 @@
 name: CodeQL
 on:
   schedule:
-    - cron: 42 3 * * SUN
+    - cron: 42 4 * * FRI
 jobs:
   analyze:
     name: Analyze
@@ -18,13 +18,13 @@ jobs:
       matrix:
         language: [ go ]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3

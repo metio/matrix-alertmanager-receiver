@@ -1,7 +1,123 @@
 # SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-.idea/
+########################################################################################################################
+# Go GitIgnore                                                                                                         #
+# Based on: https://github.com/toptal/gitignore/blob/master/templates/Go.gitignore                                     #
+########################################################################################################################
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+########################################################################################################################
+# JetBrains IntelliJ IDEA GitIgnore                                                                                    #
+# Based on: https://github.com/toptal/gitignore/blob/master/templates/JetBrains.gitignore                              #
+########################################################################################################################
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/misc.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# AWS User-specific
+.idea/**/aws.xml
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/dataSources.xml
+.idea/**/sqlDataSources.xml
+.idea/**/sqldialects.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Random stuff
+.idea/**/libraries-with-intellij-classes.xml
+.idea/**/encodings.xml
+
+# Markdown
+.idea/markdown.xml
+
+# VCS
+.idea/vcs.xml
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# Gradle and Maven with auto-import
+.idea/artifacts
+.idea/compiler.xml
+.idea/jarRepositories.xml
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
+*.iml
+*.ipr
+
+# CMake
+cmake-build-*/
+
+# Mongo Explorer plugin
+.idea/**/mongoSettings.xml
+
+# File-based project format
+*.iws
+
+# IntelliJ
+out/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Cursive Clojure plugin
+.idea/replstate.xml
+
+# SonarLint plugin
+.idea/sonarlint/
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# Editor-based Rest Client
+.idea/httpRequests
+
+# Android studio 3.1+ serialized cache file
+.idea/caches/build_file_checksums.ser
+
+########################################################################################################################
+# Project specific ignores                                                                                             #
+########################################################################################################################
+
 matrix-alertmanager-receiver
 config.yaml
-http/http-client.private.env.json

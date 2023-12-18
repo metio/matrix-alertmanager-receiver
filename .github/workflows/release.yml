@@ -4,7 +4,7 @@
 name: Automated Release
 on:
   schedule:
-    - cron: 23 4 * * MON
+    - cron: 35 5 * * WED
   workflow_dispatch:
 jobs:
   release:
@@ -69,7 +69,7 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: ${{ github.event.repository.name }} version ${{ steps.release.outputs.version }} published
-          body: See https://github.com/metio/terraform-provider-git/releases/tag/${{ steps.release.outputs.version }} for details.
+          body: See https://github.com/${{ github.repository }}/releases/tag/${{ steps.release.outputs.version }} for details.
           to: ${{ secrets.MAIL_RECIPIENT }}
           from: ${{ secrets.MAIL_SENDER }}
       - id: matrix
@@ -79,5 +79,5 @@ jobs:
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: ${{ github.event.repository.name }} version [${{ steps.release.outputs.version }}](https://github.com/metio/terraform-provider-git/releases/tag/${{ steps.release.outputs.version }}) published
+          message: ${{ github.event.repository.name }} version [${{ steps.release.outputs.version }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.release.outputs.version }}) published
           server: ${{ secrets.MATRIX_SERVER }}

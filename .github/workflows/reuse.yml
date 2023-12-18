@@ -3,8 +3,6 @@
 
 name: REUSE compliance
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 jobs:
