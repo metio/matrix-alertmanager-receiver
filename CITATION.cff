@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+cff-version: 1.2.0
+title: matrix-alertmanager-receiver
+message: If you use this software, please cite it as below.
+type: software
+authors:
+- family-names: Hoß
+  given-names: Sebastian
+  email: seb@hoß.de
+url: https://github.com/metio/matrix-alertmanager-receiver
+license: GPL-3.0-or-later
+keywords:
+  - alerting
+  - alertmanager
+  - go
+  - make
+  - matrix
+  - monitoring
+  - prometheus

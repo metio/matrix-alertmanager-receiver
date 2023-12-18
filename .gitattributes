@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto
+
+#
+# The above will handle all files NOT found below
+#
+# These files are text and should be normalized (Convert crlf => lf)
+*.css           text
+*.spec          text
+*.rb            text
+*.java          text
+*.js            text
+*.md            text
+*.properties    text
+*.txt           text
+*.yml           text
+*.yaml          text
+*.html          text
+*.xml           text
+*.rc            text

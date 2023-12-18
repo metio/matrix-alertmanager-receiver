@@ -1,0 +1,10 @@
+<component name="CopyrightManager">
+  <settings default="matrix-alertmanager-receiver">
+    <module2copyright>
+      <element module="Project Files" copyright="matrix-alertmanager-receiver" />
+    </module2copyright>
+    <LanguageOptions name="JAVA">
+      <option name="addBlankBefore" value="true" />
+    </LanguageOptions>
+  </settings>
+</component>

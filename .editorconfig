@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# top-most EditorConfig file
+root = true
+
+# global rules for all fies
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Makefiles use tabs by convention
+[Makefile]
+indent_style = tab
+[*.mk]
+indent_style = tab

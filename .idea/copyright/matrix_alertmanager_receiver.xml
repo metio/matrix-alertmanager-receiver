@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="keyword" value="SPDX-FileCopyrightText" />
+    <option name="notice" value="SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors&#10;SPDX-License-Identifier: GPL-3.0-or-later" />
+    <option name="myName" value="matrix-alertmanager-receiver" />
+  </copyright>
+</component>
