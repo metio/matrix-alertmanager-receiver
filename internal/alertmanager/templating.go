@@ -87,8 +87,8 @@ func CreateTemplatingFunc(ctx context.Context, configuration config.Templating) 
 		err := selectedTemplate.Execute(&output, templateData{
 			Alert:             alert,
 			GroupLabels:       data.GroupLabels,
-			CommonLabels:      data.GroupLabels,
-			CommonAnnotations: data.GroupLabels,
+			CommonLabels:      data.CommonLabels,
+			CommonAnnotations: data.CommonAnnotations,
 			SilenceURL:        silenceUrl,
 			ExternalURL:       externalUrl,
 			GeneratorURL:      generatorUrl,
