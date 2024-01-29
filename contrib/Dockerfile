@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 FROM golang:1.21-alpine AS build
 WORKDIR /app
 COPY go.mod go.sum ./
