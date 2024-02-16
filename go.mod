@@ -9,7 +9,7 @@ require (
 	github.com/matrix-org/gomatrix v0.0.0-20220926102614-ceba4d9f7530
 	github.com/prometheus/alertmanager v0.26.0
 	github.com/prometheus/client_golang v1.18.0
-	github.com/prometheus/common v0.46.0
+	github.com/prometheus/common v0.47.0
 	github.com/stretchr/testify v1.8.4
 	sigs.k8s.io/yaml v1.4.0
 )
