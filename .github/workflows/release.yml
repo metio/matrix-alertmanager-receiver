@@ -118,7 +118,7 @@ jobs:
       - id: documentation
         name: Docker Hub Description
         if: steps.commits.outputs.count > 0
-        uses: peter-evans/dockerhub-description@v3
+        uses: peter-evans/dockerhub-description@v4
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
