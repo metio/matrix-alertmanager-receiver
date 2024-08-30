@@ -5,8 +5,6 @@ module github.com/sebhoss/matrix-alertmanager-receiver
 
 go 1.23
 
-toolchain go1.23.0
-
 require (
 	github.com/prometheus/alertmanager v0.27.0
 	github.com/prometheus/client_golang v1.20.2
