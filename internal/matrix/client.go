@@ -57,12 +57,20 @@ func GetHTMLMessage(msgtype, htmlText string) HTMLMessage {
 func CreatingSendingFunc(ctx context.Context, configuration config.Matrix) SendingFunc {
 	matrixClient := createMatrixClient(ctx, configuration)
 	return func(htmlText string, room string) {
-		if respSendEvent, err := matrixClient.SendMessageEvent(ctx, id.RoomID(room), event.NewEventType("m.room.message"), GetHTMLMessage("m.text", htmlText)); err != nil {
-			sendFailureTotal.Inc()
-			slog.ErrorContext(ctx, "Could not send message to Matrix homeserver", slog.Any("error", err))
+		mappedRoom := room
+		if mapped, ok := configuration.RoomMapping[room]; ok {
+			mappedRoom = mapped
+		}
+		if _, err := matrixClient.JoinRoom(ctx, mappedRoom, "", nil); err != nil {
+			slog.ErrorContext(ctx, fmt.Sprintf("Could not join room %s", room), slog.Any("error", err))
 		} else {
-			sendSuccessTotal.Inc()
-			slog.DebugContext(ctx, fmt.Sprintf("Message %s sent to Matrix homeserver", respSendEvent.EventID))
+			if respSendEvent, err := matrixClient.SendMessageEvent(ctx, id.RoomID(room), event.NewEventType("m.room.message"), GetHTMLMessage("m.text", htmlText)); err != nil {
+				sendFailureTotal.Inc()
+				slog.ErrorContext(ctx, "Could not send message to Matrix homeserver", slog.Any("error", err))
+			} else {
+				sendSuccessTotal.Inc()
+				slog.DebugContext(ctx, fmt.Sprintf("Message %s sent to Matrix homeserver", respSendEvent.EventID))
+			}
 		}
 	}
 }
