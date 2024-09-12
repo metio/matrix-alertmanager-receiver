@@ -86,7 +86,7 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
-          file: ./contrib/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: |
             docker.io/metio/matrix-alertmanager-receiver:latest
