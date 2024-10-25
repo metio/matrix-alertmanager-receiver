@@ -8,7 +8,7 @@ go 1.23
 require (
 	github.com/prometheus/alertmanager v0.27.0
 	github.com/prometheus/client_golang v1.20.5
-	github.com/prometheus/common v0.60.0
+	github.com/prometheus/common v0.60.1
 	github.com/stretchr/testify v1.9.0
 	maunium.net/go/mautrix v0.21.1
 	sigs.k8s.io/yaml v1.4.0
