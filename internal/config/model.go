@@ -29,6 +29,7 @@ type HTTPServer struct {
 	AlertsPathPrefix string `json:"alerts-path-prefix"`
 	MetricsPath      string `json:"metrics-path"`
 	MetricsEnabled   bool   `json:"metrics-enabled"`
+	BasicPassword    string `json:"basic-password"`
 }
 
 func (h *HTTPServer) LogValue() slog.Value {
