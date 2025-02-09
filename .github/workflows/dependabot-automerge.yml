@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+# see https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#enabling-automerge-on-a-pull-request
+
 name: Dependabot auto-merge
 on: pull_request
 permissions:
@@ -9,7 +11,7 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'metio/matrix-alertmanager-receiver'
     steps:
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --rebase "$PR_URL"
