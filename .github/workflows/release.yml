@@ -93,13 +93,12 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.goos }}-${{ matrix.goarch }}
           path: ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz
-  release:
+  github:
     name: GitHub Release
     needs: [prepare, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write
     steps:
       - id: checkout
         name: Clone Git Repository
@@ -165,6 +164,13 @@ jobs:
             dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_windows_amd64.tar.gz
             dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS
             dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS.sig
+  dockerhub:
+    name: Dockerhub Release
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
       - id: cosign-install
         if: needs.prepare.outputs.commit_count > 0
         name: Install Cosign
@@ -230,6 +236,11 @@ jobs:
           repository: metio/matrix-alertmanager-receiver
           short-description: ${{ github.event.repository.description }}
           readme-filepath: ./README.dockerhub.md
+  announcement:
+    name: Announcement
+    needs: [prepare, build, github, dockerhub]
+    runs-on: ubuntu-latest
+    steps:
       - id: mail
         name: Send Mail
         if: needs.prepare.outputs.commit_count > 0
