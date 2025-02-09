@@ -120,12 +120,12 @@ jobs:
         run: >
           cd dist &&
           sha256sum
-          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_amd64.zip
-          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm.zip
-          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm64.zip
-          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_amd64.zip
-          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_arm64.zip
-          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_windows_amd64.zip
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_amd64.tar.gz
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm.tar.gz
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm64.tar.gz
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_amd64.tar.gz
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_arm64.tar.gz
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_windows_amd64.tar.gz
           > ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS
       - id: import_gpg
         name: Import GPG key
@@ -156,15 +156,14 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_amd64.zip
-            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm.zip
-            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm64.zip
-            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_amd64.zip
-            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_arm64.zip
-            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_windows_amd64.zip
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_amd64.tar.gz
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm.tar.gz
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm64.tar.gz
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_amd64.tar.gz
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_arm64.tar.gz
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_windows_amd64.tar.gz
             dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS
             dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS.sig
-            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_manifest.json
       - id: cosign-install
         if: needs.prepare.outputs.commit_count > 0
         name: Install Cosign
