@@ -93,7 +93,7 @@ func fetchJoinedRooms(ctx context.Context, client *mautrix.Client) {
 func joinRoom(ctx context.Context, client *mautrix.Client, roomToJoin string) error {
 	if !slices.Contains(joinedRoomIDs, roomToJoin) {
 		slog.DebugContext(ctx, "Joining room", slog.String("room", roomToJoin))
-		_, err := client.JoinRoom(ctx, roomToJoin, "", nil)
+		_, err := client.JoinRoomByID(ctx, id.RoomID(roomToJoin))
 		if err != nil {
 			return err
 		}
