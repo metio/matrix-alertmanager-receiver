@@ -7,14 +7,16 @@ on:
     - cron: 35 5 * * WED
   workflow_dispatch:
 jobs:
-  release:
+  prepare:
+    name: Prepare Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
+    outputs:
+      commit_count: ${{ steps.commits.outputs.count }}
+      release_version: ${{ steps.release.outputs.version }}
+      previous_version: ${{ steps.last_release.outputs.tag }}
     steps:
       - id: checkout
-        name: Checkout
+        name: Clone Git Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -30,57 +32,160 @@ jobs:
         name: Create Release Version
         if: steps.commits.outputs.count > 0
         run: echo "version=$(date +'%Y.%-m.%-d')" >> $GITHUB_OUTPUT
-      - id: tag
-        name: Create Release Tag
-        if: steps.commits.outputs.count > 0
-        uses: EndBug/latest-tag@latest
-        with:
-          ref: ${{ steps.release.outputs.version }}
+  build:
+    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+    steps:
+      - id: checkout
+        name: Clone Git Repository
+        if: needs.prepare.outputs.commit_count > 0
+        uses: actions/checkout@v4
       - id: setup_go
         name: Set up Go
-        if: steps.commits.outputs.count > 0
         uses: actions/setup-go@v5
+        if: needs.prepare.outputs.commit_count > 0
         with:
           go-version-file: go.mod
           cache: true
+      - id: build
+        name: Build Project
+        if: needs.prepare.outputs.commit_count > 0
+        run: >
+          go build
+          -o ${{ github.event.repository.name }}_v${{ needs.prepare.outputs.release_version }}
+          -trimpath
+          -ldflags="-s -w -X main.version=${{ needs.prepare.outputs.release_version }} -X main.commit=${{ github.sha }}"
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+      - id: tar
+        name: Create tar.gz Archive
+        if: needs.prepare.outputs.commit_count > 0
+        run: >
+          tar
+          --create
+          --gzip
+          --file ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz
+          ${{ github.event.repository.name }}_v${{ needs.prepare.outputs.release_version }}
+          LICENSE
+          README.md
+      - id: upload
+        name: Upload Artifact
+        if: needs.prepare.outputs.commit_count > 0
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz
+  release:
+    name: GitHub Release
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - id: checkout
+        name: Clone Git Repository
+        if: needs.prepare.outputs.commit_count > 0
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: download
+        name: Download Artifacts
+        if: needs.prepare.outputs.commit_count > 0
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: ${{ github.event.repository.name }}-*
+          merge-multiple: true
+      - id: checksums
+        name: Calculate Checksums
+        if: needs.prepare.outputs.commit_count > 0
+        run: >
+          cd dist &&
+          sha256sum
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_amd64.zip
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm.zip
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm64.zip
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_amd64.zip
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_arm64.zip
+          ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_windows_amd64.zip
+          > ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS
       - id: import_gpg
         name: Import GPG key
-        if: steps.commits.outputs.count > 0
         uses: crazy-max/ghaction-import-gpg@v6
+        if: needs.prepare.outputs.commit_count > 0
         with:
           gpg_private_key: ${{ secrets.GPG_SECRET_KEY_BASE64 }}
           passphrase: ${{ secrets.GPG_SECRET_KEY_PASSWORD }}
+      - id: sign_checksums
+        name: Sign Checksums
+        if: needs.prepare.outputs.commit_count > 0
+        run: >
+          gpg
+          --batch
+          --local-user ${{ steps.import_gpg.outputs.fingerprint }}
+          --output dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS.sig
+          --detach-sign
+          dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS
+      - id: create_release
+        name: Create Release
+        if: needs.prepare.outputs.commit_count > 0
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare.outputs.release_version }}
+          name: ${{ needs.prepare.outputs.release_version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_amd64.zip
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm.zip
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_linux_arm64.zip
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_amd64.zip
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_darwin_arm64.zip
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_windows_amd64.zip
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS.sig
+            dist/${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_manifest.json
       - id: cosign-install
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         name: Install Cosign
         uses: sigstore/cosign-installer@v3
       - id: buildx
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - id: dockerhub_login
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         name: Login to Dockerhub
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - id: goreleaser
-        name: Run GoReleaser
-        if: steps.commits.outputs.count > 0
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          version: latest
-          args: release --clean
-        env:
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: timestamp
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         name: Create Timestamp
         run: echo "date=$(date --rfc-3339=seconds)" >> $GITHUB_OUTPUT
       - id: publish
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         name: Publish Image
         uses: docker/build-push-action@v6
         with:
@@ -90,7 +195,7 @@ jobs:
           push: true
           tags: |
             docker.io/metio/matrix-alertmanager-receiver:latest
-            docker.io/metio/matrix-alertmanager-receiver:${{ steps.release.outputs.version }}
+            docker.io/metio/matrix-alertmanager-receiver:${{ needs.prepare.outputs.release_version }}
           labels: |
             org.opencontainers.image.title=matrix-alertmanager-receiver
             org.opencontainers.image.licenses=GPLv3
@@ -98,7 +203,7 @@ jobs:
             org.opencontainers.image.url=https://github.com/${{ github.repository }}
             org.opencontainers.image.documentation=https://github.com/${{ github.repository }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.version=${{ steps.release.outputs.version }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.release_version }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ steps.timestamp.outputs.date }}
           cache-from: type=registry,ref=metio/matrix-alertmanager-receiver:buildcache
@@ -106,7 +211,7 @@ jobs:
           sbom: true
           provenance: true
       - id: sign
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         name: Sign Image
         run: |
           cosign sign \
@@ -117,7 +222,7 @@ jobs:
             docker.io/metio/matrix-alertmanager-receiver@${{ steps.publish.outputs.digest }}
       - id: documentation
         name: Docker Hub Description
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         uses: peter-evans/dockerhub-description@v4
         with:
           username: ${{ vars.DOCKER_USERNAME }}
@@ -127,23 +232,23 @@ jobs:
           readme-filepath: ./README.dockerhub.md
       - id: mail
         name: Send Mail
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: ${{ secrets.MAIL_SERVER }}
           server_port: ${{ secrets.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: ${{ github.event.repository.name }} version ${{ steps.release.outputs.version }} published
-          body: See https://github.com/${{ github.repository }}/releases/tag/${{ steps.release.outputs.version }} for details.
+          subject: ${{ github.event.repository.name }} version ${{ needs.prepare.outputs.release_version }} published
+          body: See https://github.com/metio/${{ github.event.repository.name }}/releases/tag/${{ needs.prepare.outputs.release_version }} for details.
           to: ${{ secrets.MAIL_RECIPIENT }}
           from: ${{ secrets.MAIL_SENDER }}
       - id: matrix
         name: Send Matrix Message
-        if: steps.commits.outputs.count > 0
+        if: needs.prepare.outputs.commit_count > 0
         uses: s3krit/matrix-message-action@v0.0.3
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: ${{ github.event.repository.name }} version [${{ steps.release.outputs.version }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.release.outputs.version }}) published
+          message: ${{ github.event.repository.name }} version [${{ needs.prepare.outputs.release_version }}](https://github.com/metio/${{ github.event.repository.name }}/releases/tag/${{ needs.prepare.outputs.release_version }}) published
           server: ${{ secrets.MATRIX_SERVER }}

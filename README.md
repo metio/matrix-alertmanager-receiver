@@ -18,6 +18,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 ## Usage
 
+Use the container image at https://hub.docker.com/r/metio/matrix-alertmanager-receiver or [build](#building) the project yourself and run the resulting binary.
+
+## Configuration
+
 Configure your Alertmanager(s) to use this service as a webhook receiver like this:
 
 ```yaml
@@ -310,7 +314,7 @@ It's highly likely that this project does not meet your needs. Here is a list of
 
 ## Building
 
-In order to build this project, make sure to install at least Golang 1.21 and run the following command:
+In order to build this project, make sure to install at least Golang 1.23 and run the following command:
 
 ```shell
 $ CGO_ENABLED=0 go build -o matrix-alertmanager-receiver
