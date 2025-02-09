@@ -34,9 +34,18 @@ var (
 	}, []string{"room"})
 )
 
-func AlertsHandler(ctx context.Context, sendingFunc matrix.SendingFunc, templatingFunc alertmanager.TemplatingFunc, roomExtractorFunc RoomExtractorFunc) http.HandlerFunc {
+func AlertsHandler(ctx context.Context, sendingFunc matrix.SendingFunc, templatingFunc alertmanager.TemplatingFunc, roomExtractorFunc RoomExtractorFunc, password_conf string) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		httpRequestsTotal.Inc()
+		if password_conf != "" {
+			username, password, ok := request.BasicAuth()
+			if !ok || username != "alertmanager" || password != password_conf {
+				slog.ErrorContext(ctx, "Invalid credentials")
+				writer.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+		}
+
 		if request.Method != http.MethodPost {
 			unsupportedMethodTotal.WithLabelValues(request.Method).Inc()
 			slog.ErrorContext(ctx, "Unsupported HTTP method used", slog.String("method", request.Method))

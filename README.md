@@ -72,6 +72,7 @@ http:
   alerts-path-prefix: /alerts # URL path for the webhook receiver called by an Alertmanager. Defaults to /alerts
   metrics-path: /metrics      # URL path to collect metrics. Defaults to /metrics
   metrics-enabled: true       # Whether to enable metrics or not. Defaults to false
+  basic-password: "secret"    # If set, the alerts endpoint expects basic-auth credentials with username 'alertmanager' and this password
 
 # configuration for the Matrix connection
 matrix:
