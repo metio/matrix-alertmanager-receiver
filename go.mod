@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-module github.com/sebhoss/matrix-alertmanager-receiver
+module github.com/metio/matrix-alertmanager-receiver
 
 go 1.23
 

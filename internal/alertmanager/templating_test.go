@@ -6,8 +6,8 @@
 package alertmanager
 
 import (
+	"github.com/metio/matrix-alertmanager-receiver/internal/config"
 	amtemplate "github.com/prometheus/alertmanager/template"
-	"github.com/sebhoss/matrix-alertmanager-receiver/internal/config"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

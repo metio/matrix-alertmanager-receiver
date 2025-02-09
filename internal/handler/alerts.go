@@ -7,10 +7,10 @@ package handler
 
 import (
 	"context"
+	"github.com/metio/matrix-alertmanager-receiver/internal/alertmanager"
+	"github.com/metio/matrix-alertmanager-receiver/internal/matrix"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/sebhoss/matrix-alertmanager-receiver/internal/alertmanager"
-	"github.com/sebhoss/matrix-alertmanager-receiver/internal/matrix"
 	"log/slog"
 	"net/http"
 )

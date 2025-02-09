@@ -8,9 +8,9 @@ package matrix
 import (
 	"context"
 	"fmt"
+	"github.com/metio/matrix-alertmanager-receiver/internal/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/sebhoss/matrix-alertmanager-receiver/internal/config"
 	"log/slog"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
