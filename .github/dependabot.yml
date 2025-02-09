@@ -6,6 +6,12 @@ updates:
   - package-ecosystem: gomod
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+    assignees:
+      - sebhoss
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
     assignees:
       - sebhoss

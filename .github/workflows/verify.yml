@@ -5,6 +5,8 @@ name: Verify Commits
 on:
   pull_request:
     branches: [ main ]
+permissions:
+  contents: read
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -20,7 +22,7 @@ jobs:
           cache: true
       - id: lint
         name: Lint Go Code
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
         with:
           version: latest
       - id: tests
