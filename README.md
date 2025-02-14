@@ -316,6 +316,7 @@ It's highly likely that this project does not meet your needs. Here is a list of
 - https://github.com/silkeh/alertmanager_matrix
 - https://github.com/ultram4rine/alerter
 - https://github.com/metalmatze/alertmanager-bot
+- https://gitlab.domainepublic.net/Neutrinet/matrix-alertbot/
 
 ## Building
 
