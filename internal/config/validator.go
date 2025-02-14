@@ -34,6 +34,9 @@ func validateConfiguration(ctx context.Context, configuration *Configuration) bo
 	if !strings.HasPrefix(http.MetricsPath, "/") {
 		http.AlertsPathPrefix = "/" + http.MetricsPath
 	}
+	if strings.TrimSpace(http.BasicUsername) == "" {
+		http.BasicUsername = "alertmanager"
+	}
 
 	matrix := &configuration.Matrix
 	if strings.TrimSpace(matrix.HomeServerURL) == "" {

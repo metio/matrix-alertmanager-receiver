@@ -67,12 +67,13 @@ This service is a single binary which provides two CLI arguments:
 ```yaml
 # configuration of the HTTP server
 http:
-  address: 127.0.0.1          # bind address for this service. Can be left unspecified to bind on all interfaces
-  port: 12345                 # port used by this service
-  alerts-path-prefix: /alerts # URL path for the webhook receiver called by an Alertmanager. Defaults to /alerts
-  metrics-path: /metrics      # URL path to collect metrics. Defaults to /metrics
-  metrics-enabled: true       # Whether to enable metrics or not. Defaults to false
-  basic-password: "secret"    # If set, the alerts endpoint expects basic-auth credentials with username 'alertmanager' and this password
+  address: 127.0.0.1              # bind address for this service. Can be left unspecified to bind on all interfaces
+  port: 12345                     # port used by this service
+  alerts-path-prefix: /alerts     # URL path for the webhook receiver called by an Alertmanager. Defaults to /alerts
+  metrics-path: /metrics          # URL path to collect metrics. Defaults to /metrics
+  metrics-enabled: true           # Whether to enable metrics or not. Defaults to false
+  basic-username: alertmanager    # Username for basic authentication. Defaults to alertmanager
+  basic-password: secret          # If set, the alerts endpoint expects basic-auth credentials with the configured username and password
 
 # configuration for the Matrix connection
 matrix:

@@ -152,6 +152,7 @@ func TestValidateConfiguration_AdjustedValues(t *testing.T) {
 					Port:             12345,
 					AlertsPathPrefix: "/alerts/",
 					MetricsPath:      "/metrics",
+					BasicUsername:    "alertmanager",
 				},
 				Matrix: Matrix{
 					HomeServerURL: "example.com",

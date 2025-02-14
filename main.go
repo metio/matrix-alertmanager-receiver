@@ -55,13 +55,17 @@ func main() {
 
 	var authorizerFunc handler.AuthorizerFunc
 	if configuration.HTTPServer.BasicPassword != "" {
-		authorizerFunc = handler.CreateBasicAuthAuthorizer("alertmanager", configuration.HTTPServer.BasicPassword)
+		slog.InfoContext(ctx, "Configuring basic authentication")
+		authorizerFunc = handler.CreateBasicAuthAuthorizer(configuration.HTTPServer.BasicUsername, configuration.HTTPServer.BasicPassword)
 	} else {
+		slog.InfoContext(ctx, "Allowing all incoming requests")
 		authorizerFunc = handler.CreateAlwaysAllowedAuthorizer()
 	}
+	slog.InfoContext(ctx, "Request authorizer function created")
 
 	http.HandleFunc(configuration.HTTPServer.AlertsPathPrefix, handler.AlertsHandler(ctx, sendingFunc, templatingFunc, extractorFunc, authorizerFunc))
 	if configuration.HTTPServer.MetricsEnabled {
+		slog.InfoContext(ctx, "Enabling metrics endpoint")
 		http.Handle(configuration.HTTPServer.MetricsPath, promhttp.Handler())
 	}
 	slog.InfoContext(ctx, "Handlers configured")
