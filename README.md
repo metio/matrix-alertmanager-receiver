@@ -315,7 +315,7 @@ It's highly likely that this project does not meet your needs. Here is a list of
 
 ## Building
 
-In order to build this project, make sure to install at least Golang 1.23 and run the following command:
+In order to build this project, make sure to install at least Golang 1.24 and run the following command:
 
 ```shell
 $ CGO_ENABLED=0 go build -o matrix-alertmanager-receiver
