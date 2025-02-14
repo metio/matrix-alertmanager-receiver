@@ -55,6 +55,21 @@ receivers:
       - url: "https://example.com:12345/alerts/ticket"
 ```
 
+In case you have activated basic authentication in this service, use the following configuration in your Alertmanager:
+
+```yaml
+receivers:
+  - name: some-room
+    webhook_configs:
+      - url: "https://example.com:12345/alerts/pager"
+        http_config:
+          basic_auth:
+            username: "<username>"
+            password: "<password>" # or use password_file
+```
+
+Replace `<username>` and `<password>` with the values configured for this service.
+
 ## CLI Arguments
 
 This service is a single binary which provides two CLI arguments:
