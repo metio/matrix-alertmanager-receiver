@@ -28,3 +28,16 @@ jobs:
       - id: tests
         name: Run Tests
         run: go test -v -cover ./...
+      - id: buildx
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - id: container_image
+        name: Build Image
+        uses: docker/build-push-action@v6
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: |
+            docker.io/metio/matrix-alertmanager-receiver:${{ github.sha }}
