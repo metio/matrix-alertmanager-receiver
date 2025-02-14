@@ -171,6 +171,10 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - id: checkout
+        name: Clone Git Repository
+        if: needs.prepare.outputs.commit_count > 0
+        uses: actions/checkout@v4
       - id: cosign-install
         if: needs.prepare.outputs.commit_count > 0
         name: Install Cosign
