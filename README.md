@@ -273,6 +273,9 @@ The following metrics are available at the `/metrics` endpoint of this service i
 # The total number of HTTP requests received at the /alerts endpoint
 matrix_alertmanager_receiver_http_requests_total
 
+The total number of HTTP requests without valid credentials
+matrix_alertmanager_receiver_unauthorized_http_requests_total
+
 # The total number of HTTP requests using unsupported HTTP methods received at the /alerts endpoint
 matrix_alertmanager_receiver_unsupported_http_method_total
 

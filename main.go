@@ -53,7 +53,14 @@ func main() {
 	extractorFunc := handler.CreateRoomExtractor(configuration.HTTPServer.AlertsPathPrefix)
 	slog.InfoContext(ctx, "Room extracting function created")
 
-	http.HandleFunc(configuration.HTTPServer.AlertsPathPrefix, handler.AlertsHandler(ctx, sendingFunc, templatingFunc, extractorFunc, configuration.HTTPServer.BasicPassword))
+	var authorizerFunc handler.AuthorizerFunc
+	if configuration.HTTPServer.BasicPassword != "" {
+		authorizerFunc = handler.CreateBasicAuthAuthorizer("alertmanager", configuration.HTTPServer.BasicPassword)
+	} else {
+		authorizerFunc = handler.CreateAlwaysAllowedAuthorizer()
+	}
+
+	http.HandleFunc(configuration.HTTPServer.AlertsPathPrefix, handler.AlertsHandler(ctx, sendingFunc, templatingFunc, extractorFunc, authorizerFunc))
 	if configuration.HTTPServer.MetricsEnabled {
 		http.Handle(configuration.HTTPServer.MetricsPath, promhttp.Handler())
 	}
