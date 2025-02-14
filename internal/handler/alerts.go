@@ -20,6 +20,10 @@ var (
 		Name: "matrix_alertmanager_receiver_http_requests_total",
 		Help: "The total number of HTTP requests received at the /alerts endpoint",
 	})
+	unauthorizedRequestsTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "matrix_alertmanager_receiver_unauthorized_http_requests_total",
+		Help: "The total number of HTTP requests without valid credentials",
+	})
 	unsupportedMethodTotal = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "matrix_alertmanager_receiver_unsupported_http_method_total",
 		Help: "The total number of HTTP requests using unsupported HTTP methods received at the /alerts endpoint",
@@ -34,16 +38,15 @@ var (
 	}, []string{"room"})
 )
 
-func AlertsHandler(ctx context.Context, sendingFunc matrix.SendingFunc, templatingFunc alertmanager.TemplatingFunc, roomExtractorFunc RoomExtractorFunc, password_conf string) http.HandlerFunc {
+func AlertsHandler(ctx context.Context, sendingFunc matrix.SendingFunc, templatingFunc alertmanager.TemplatingFunc, roomExtractorFunc RoomExtractorFunc, authorizerFunc AuthorizerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		httpRequestsTotal.Inc()
-		if password_conf != "" {
-			username, password, ok := request.BasicAuth()
-			if !ok || username != "alertmanager" || password != password_conf {
-				slog.ErrorContext(ctx, "Invalid credentials")
-				writer.WriteHeader(http.StatusUnauthorized)
-				return
-			}
+
+		if !authorizerFunc(request) {
+			unauthorizedRequestsTotal.Inc()
+			slog.ErrorContext(ctx, "Not authorized to perform request")
+			writer.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 
 		if request.Method != http.MethodPost {
