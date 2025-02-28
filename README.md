@@ -72,10 +72,11 @@ Replace `<username>` and `<password>` with the values configured for this servic
 
 ## CLI Arguments
 
-This service is a single binary which provides two CLI arguments:
+This service is a single binary with some CLI arguments:
 
 - `--config-path`: Specify the path to the configuration file to use.
 - `--log-level`: Specify the log level to use. Possible values are error, warn, debug, info. Defaults to info.
+- `--version`: Print version and exit.
 
 ## Configuration
 

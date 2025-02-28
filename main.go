@@ -21,10 +21,18 @@ import (
 	"strings"
 )
 
+var matrixAlertmanagerReceiverVersion = "development"
+
 func main() {
 	var configPath = flag.String("config-path", "", "Path to configuration file")
 	var logLevel = flag.String("log-level", "info", "The log level to use (debug, info, warn, error)")
+	var version = flag.Bool("version", false, "Print version and exit")
 	flag.Parse()
+
+	if *version {
+		fmt.Println(matrixAlertmanagerReceiverVersion)
+		os.Exit(0)
+	}
 
 	configureLogger(logLevel)
 	ctx := context.Background()
