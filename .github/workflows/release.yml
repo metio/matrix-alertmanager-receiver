@@ -56,6 +56,10 @@ jobs:
         name: Clone Git Repository
         if: needs.prepare.outputs.commit_count > 0
         uses: actions/checkout@v4
+      - id: versioning
+        name: Modify release version
+        if: needs.prepare.outputs.commit_count > 0
+        run: sed -i -e 's/var matrixAlertmanagerReceiverVersion = .*/var matrixAlertmanagerReceiverVersion = "${{ steps.release.outputs.version }}"/' main.go
       - id: setup_go
         name: Set up Go
         uses: actions/setup-go@v5
@@ -179,6 +183,10 @@ jobs:
         name: Clone Git Repository
         if: needs.prepare.outputs.commit_count > 0
         uses: actions/checkout@v4
+      - id: versioning
+        name: Modify release version
+        if: needs.prepare.outputs.commit_count > 0
+        run: sed -i -e 's/var matrixAlertmanagerReceiverVersion = .*/var matrixAlertmanagerReceiverVersion = "${{ steps.release.outputs.version }}"/' main.go
       - id: cosign-install
         if: needs.prepare.outputs.commit_count > 0
         name: Install Cosign
