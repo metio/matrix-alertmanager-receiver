@@ -11,13 +11,17 @@ import (
 	"github.com/metio/matrix-alertmanager-receiver/internal/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/rs/zerolog"
 	"log/slog"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/format"
 	"maunium.net/go/mautrix/id"
+	"net/http"
+	"net/url"
 	"os"
 	"slices"
+	"time"
 )
 
 var (
@@ -71,10 +75,35 @@ func createMatrixClient(ctx context.Context, configuration config.Matrix) *mautr
 	var err error
 	var matrixClient *mautrix.Client
 	slog.DebugContext(ctx, "Creating Matrix client", slog.Any("configuration", configuration.LogValue()))
-	if matrixClient, err = mautrix.NewClient(configuration.HomeServerURL, id.UserID(configuration.UserID), configuration.AccessToken); err != nil {
-		slog.ErrorContext(ctx, "Failed to create matrix client", slog.Any("error", err))
-		os.Exit(1)
+	if configuration.Proxy != "" {
+		// this is similar to mautrix.NewClient but sets a proxy in the http.Client
+		hsURL, err := mautrix.ParseAndNormalizeBaseURL(configuration.HomeServerURL)
+		if err != nil {
+			slog.ErrorContext(ctx, "Failed to parse/normalize base URL", slog.Any("error", err))
+			os.Exit(1)
+		}
+		proxyUrl, err := url.Parse(configuration.Proxy)
+		if err != nil {
+			slog.ErrorContext(ctx, "Failed to parse proxy URL", slog.Any("error", err))
+			os.Exit(1)
+		}
+		matrixClient = &mautrix.Client{
+			AccessToken:   configuration.AccessToken,
+			UserAgent:     mautrix.DefaultUserAgent,
+			HomeserverURL: hsURL,
+			UserID:        id.UserID(configuration.UserID),
+			Client:        &http.Client{Timeout: 180 * time.Second, Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}},
+			Syncer:        mautrix.NewDefaultSyncer(),
+			Log:           zerolog.Nop(),
+			Store:         mautrix.NewMemorySyncStore(),
+		}
+	} else {
+		if matrixClient, err = mautrix.NewClient(configuration.HomeServerURL, id.UserID(configuration.UserID), configuration.AccessToken); err != nil {
+			slog.ErrorContext(ctx, "Failed to create matrix client", slog.Any("error", err))
+			os.Exit(1)
+		}
 	}
+
 	slog.DebugContext(ctx, "Created Matrix client")
 	return matrixClient
 }

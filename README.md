@@ -15,6 +15,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
 - Replace TOML with YAML format
 - Add Prometheus metrics for received alerts, sent notifications, and templating failures
 - Use the [slog](https://pkg.go.dev/log/slog) package for structured logging
+- Support for basic authentication
+- Support for HTTP proxies
 
 ## Usage
 
@@ -96,6 +98,7 @@ matrix:
   homeserver-url: https://matrix.example.com        # FQDN of the homeserver
   user-id: "@user:matrix.example.com"               # ID of the user used by this service
   access-token: secret                              # Access token for the user ID
+  proxy: https://some-proxy.corp                    # HTTP proxy to use - or set HTTP_PROXY env variable. Defaults to an empty string
   # define short names for Matrix room ID
   room-mapping:
     simple-name: "!qohfwef7qwerf:example.com"

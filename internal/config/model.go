@@ -48,6 +48,7 @@ type Matrix struct {
 	HomeServerURL string            `json:"homeserver-url"`
 	UserID        string            `json:"user-id"`
 	AccessToken   string            `json:"access-token"`
+	Proxy         string            `json:"proxy"`
 	RoomMapping   map[string]string `json:"room-mapping"`
 }
 
@@ -55,6 +56,7 @@ func (m *Matrix) LogValue() slog.Value {
 	return slog.GroupValue(
 		slog.String("homeserver-url", m.HomeServerURL),
 		slog.String("user-id", m.UserID),
+		slog.String("proxy", m.Proxy),
 		slog.Any("room-mapping", m.RoomMapping),
 	)
 }
