@@ -62,7 +62,7 @@ jobs:
         run: sed -i -e 's/var matrixAlertmanagerReceiverVersion = .*/var matrixAlertmanagerReceiverVersion = "${{ steps.release.outputs.version }}"/' main.go
       - id: setup_go
         name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         if: needs.prepare.outputs.commit_count > 0
         with:
           go-version-file: go.mod
