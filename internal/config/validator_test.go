@@ -164,6 +164,38 @@ func TestValidateConfiguration_AdjustedValues(t *testing.T) {
 				},
 			},
 		},
+		"with-custom-metrics-path": {
+			configuration: &Configuration{
+				HTTPServer: HTTPServer{
+					Port:        12345,
+					MetricsPath: "somewhere-metrics",
+				},
+				Matrix: Matrix{
+					HomeServerURL: "example.com",
+					UserID:        "12345",
+					AccessToken:   "secret",
+				},
+				Templating: Templating{
+					Firing: "something broke",
+				},
+			},
+			expected: &Configuration{
+				HTTPServer: HTTPServer{
+					Port:             12345,
+					AlertsPathPrefix: "/alerts/",
+					MetricsPath:      "/somewhere-metrics",
+					BasicUsername:    "alertmanager",
+				},
+				Matrix: Matrix{
+					HomeServerURL: "example.com",
+					UserID:        "12345",
+					AccessToken:   "secret",
+				},
+				Templating: Templating{
+					Firing: "something broke",
+				},
+			},
+		},
 	}
 	for name, testCase := range testCases {
 		t.Run(name, func(t *testing.T) {
