@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-run:
-  timeout: 5m
+version: "2"
+linters:
+  default: standard
