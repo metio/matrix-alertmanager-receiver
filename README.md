@@ -124,7 +124,7 @@ templating:
     {{ else if eq .Alert.Labels.severity "critical" }}
     {{ $color = "red" }}
     {{ end }}
-    {{ if eq .Alert.status "resolved" }}
+    {{ if eq .Alert.Status "resolved" }}
     {{ $color = "green" }}
     {{ end }}
     <p>
