@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"regexp"
 
 	"sigs.k8s.io/yaml"
 )
@@ -18,8 +19,9 @@ func ParseConfiguration(ctx context.Context, configPath string) *Configuration {
 	if err != nil {
 		return nil
 	}
+	envVarReplacedFile := replaceEnvVariables(file)
 	var configuration Configuration
-	err = yaml.Unmarshal(file, &configuration)
+	err = yaml.Unmarshal(envVarReplacedFile, &configuration)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 	}
@@ -27,4 +29,15 @@ func ParseConfiguration(ctx context.Context, configPath string) *Configuration {
 		return nil
 	}
 	return &configuration
+}
+
+func replaceEnvVariables(content []byte) []byte {
+	var allEnvVariables = regexp.MustCompile(`\${(?P<name>\w+)}`)
+	return allEnvVariables.ReplaceAllFunc(content, func(matched []byte) []byte {
+		varName := allEnvVariables.ReplaceAllString(string(matched), `$1`)
+		if value, ok := os.LookupEnv(varName); ok {
+			return []byte(value)
+		}
+		return matched
+	})
 }
