@@ -5,6 +5,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 This file contains migration guidelines for updating the matrix-alertmanager-receiver on your systems.
 
-# Current
+# Starting with version 2025.9.17
 
-No known migrations necessary at the moment.
+- The `templating.computed-values` feature is DEPRECATED and will be removed in a future version. Use Go template [variable assignments](https://pkg.go.dev/text/template#hdr-Variables) instead.

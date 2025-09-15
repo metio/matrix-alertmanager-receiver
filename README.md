@@ -116,27 +116,19 @@ templating:
     # value is the mapped value which will be available as '.GeneratorURL' in templates
     "http://prometheus:8080": https://prometheus.example.com
 
-  # computation of arbitrary values based on matching alert annotations, labels, or status
-  # values will be evaluated top to bottom, last entry wins
-  computed-values:
-    - values: # always set 'color' to 'yellow'
-        color: yellow
-    - values: # set 'color' to 'orange' when alert label 'severity' is 'warning'
-        color: orange
-      when-matching-labels:
-        severity: warning
-    - values: # set 'color' to 'red' when alert label 'severity' is 'critical'
-        color: red
-      when-matching-labels:
-        severity: critical
-    - values: # set 'color' to 'green' when alert status is 'resolved'
-        color: green
-      when-matching-status: resolved
-
   # template for alerts in status 'firing'
   firing-template: '
+    {{ $color := "yellow" }}
+    {{ if eq .Alert.Labels.severity "warning" }}
+    {{ $color = "orange" }}
+    {{ else if eq .Alert.Labels.severity "critical" }}
+    {{ $color = "red" }}
+    {{ end }}
+    {{ if eq .Alert.status "resolved" }}
+    {{ $color = "green" }}
+    {{ end }}
     <p>
-      <strong><font color="{{ .ComputedValues.color }}">{{ .Alert.Status | ToUpper }}</font></strong>
+      <strong><font color="{{ $color }}">{{ .Alert.Status | ToUpper }}</font></strong>
       {{ if .Alert.Labels.name }}
         {{ .Alert.Labels.name }}
       {{ else if .Alert.Labels.alertname }}
@@ -163,7 +155,7 @@ templating:
 
   # template for alerts in status 'resolved', if not specified will use the firing-template
   resolved-template: '
-    <strong><font color="{{ .ComputedValues.color }}">{{ .Alert.Status | ToUpper }}</font></strong>{{ .Alert.Labels.name }}'
+    <strong><font color="green">{{ .Alert.Status | ToUpper }}</font></strong>{{ .Alert.Labels.name }}'
 ```
 
 ### Templating
