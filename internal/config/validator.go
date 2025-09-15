@@ -32,7 +32,7 @@ func validateConfiguration(ctx context.Context, configuration *Configuration) bo
 		http.MetricsPath = "/metrics"
 	}
 	if !strings.HasPrefix(http.MetricsPath, "/") {
-		http.AlertsPathPrefix = "/" + http.MetricsPath
+		http.MetricsPath = "/" + http.MetricsPath
 	}
 	if strings.TrimSpace(http.BasicUsername) == "" {
 		http.BasicUsername = "alertmanager"
