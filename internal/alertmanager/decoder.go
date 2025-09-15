@@ -7,8 +7,9 @@ package alertmanager
 
 import (
 	"encoding/json"
-	"github.com/prometheus/alertmanager/template"
 	"io"
+
+	"github.com/prometheus/alertmanager/template"
 )
 
 func DecodePayload(requestBody io.ReadCloser) (*template.Data, error) {
