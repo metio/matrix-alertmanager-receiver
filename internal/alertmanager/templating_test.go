@@ -6,10 +6,11 @@
 package alertmanager
 
 import (
+	"testing"
+
 	"github.com/metio/matrix-alertmanager-receiver/internal/config"
 	amtemplate "github.com/prometheus/alertmanager/template"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestMaybeMapValue(t *testing.T) {

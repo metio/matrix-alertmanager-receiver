@@ -8,20 +8,21 @@ package matrix
 import (
 	"context"
 	"fmt"
-	"github.com/metio/matrix-alertmanager-receiver/internal/config"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/rs/zerolog"
 	"log/slog"
-	"maunium.net/go/mautrix"
-	"maunium.net/go/mautrix/event"
-	"maunium.net/go/mautrix/format"
-	"maunium.net/go/mautrix/id"
 	"net/http"
 	"net/url"
 	"os"
 	"slices"
 	"time"
+
+	"github.com/metio/matrix-alertmanager-receiver/internal/config"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/rs/zerolog"
+	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/event"
+	"maunium.net/go/mautrix/format"
+	"maunium.net/go/mautrix/id"
 )
 
 var (

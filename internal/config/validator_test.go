@@ -7,8 +7,9 @@ package config
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateConfiguration_Errors(t *testing.T) {

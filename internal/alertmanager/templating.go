@@ -9,17 +9,18 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/metio/matrix-alertmanager-receiver/internal/config"
-	amtemplate "github.com/prometheus/alertmanager/template"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/common/model"
 	"html/template"
 	"log/slog"
 	"maps"
 	"net/url"
 	"sort"
 	"strings"
+
+	"github.com/metio/matrix-alertmanager-receiver/internal/config"
+	amtemplate "github.com/prometheus/alertmanager/template"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/common/model"
 )
 
 var (
