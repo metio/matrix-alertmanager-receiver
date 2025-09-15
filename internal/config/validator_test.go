@@ -6,14 +6,13 @@
 package config
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateConfiguration_Errors(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	testCases := map[string]struct {
 		configuration *Configuration
 		hasErrors     bool
@@ -129,7 +128,7 @@ func TestValidateConfiguration_Errors(t *testing.T) {
 }
 
 func TestValidateConfiguration_AdjustedValues(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	testCases := map[string]struct {
 		configuration *Configuration
 		expected      *Configuration
