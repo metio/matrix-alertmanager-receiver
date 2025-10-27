@@ -113,7 +113,7 @@ jobs:
       - id: download
         name: Download Artifacts
         if: needs.prepare.outputs.commit_count > 0
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           path: dist
           pattern: ${{ github.event.repository.name }}-*
