@@ -6,7 +6,7 @@ module github.com/metio/matrix-alertmanager-receiver
 go 1.24.0
 
 require (
-	github.com/prometheus/alertmanager v0.28.1
+	github.com/prometheus/alertmanager v0.29.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.67.2
 	github.com/rs/zerolog v1.34.0
@@ -41,7 +41,6 @@ require (
 	golang.org/x/net v0.46.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
-	golang.org/x/tools/godoc v0.1.0-deprecated // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
