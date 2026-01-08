@@ -59,7 +59,7 @@ jobs:
       - id: versioning
         name: Modify release version
         if: needs.prepare.outputs.commit_count > 0
-        run: sed -i -e 's/var matrixAlertmanagerReceiverVersion = .*/var matrixAlertmanagerReceiverVersion = "${{ steps.release.outputs.version }}"/' main.go
+        run: sed -i -e 's/var matrixAlertmanagerReceiverVersion = .*/var matrixAlertmanagerReceiverVersion = "${{ needs.prepare.outputs.release_version }}"/' main.go
       - id: setup_go
         name: Set up Go
         uses: actions/setup-go@v6
@@ -186,7 +186,7 @@ jobs:
       - id: versioning
         name: Modify release version
         if: needs.prepare.outputs.commit_count > 0
-        run: sed -i -e 's/var matrixAlertmanagerReceiverVersion = .*/var matrixAlertmanagerReceiverVersion = "${{ steps.release.outputs.version }}"/' main.go
+        run: sed -i -e 's/var matrixAlertmanagerReceiverVersion = .*/var matrixAlertmanagerReceiverVersion = "${{ needs.prepare.outputs.release_version }}"/' main.go
       - id: cosign-install
         if: needs.prepare.outputs.commit_count > 0
         name: Install Cosign
