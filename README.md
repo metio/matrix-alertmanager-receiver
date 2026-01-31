@@ -17,6 +17,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 - Use the [slog](https://pkg.go.dev/log/slog) package for structured logging
 - Support for basic authentication
 - Support for HTTP proxies
+- Support for environment variables in configuration file
 
 ## Usage
 
@@ -196,6 +197,10 @@ templating:
 ```
 
 Using the above configuration, all alerts whose `GeneratorURL` original value is `http://prometheus:8080` will be `https://prometheus.example.com` and `http://metrics:12345` will be mapped to `https://metrics.example.com`.
+
+#### Environment Variables
+
+You can read environment variables in the configuration file by using `${VARIABLE}` with `VARIABLE` being the name of the environment variable you want to read. If such a variable exists, we will replace `${VARIABLE}` with whatever it is set to. If no such variable exists, we will retain `${VARIABLE` as-is. 
 
 #### Computed Values
 
