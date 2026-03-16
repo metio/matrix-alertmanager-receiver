@@ -194,7 +194,7 @@ jobs:
       - id: buildx
         if: needs.prepare.outputs.commit_count > 0
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - id: dockerhub_login
         if: needs.prepare.outputs.commit_count > 0
         name: Login to Dockerhub
