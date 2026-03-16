@@ -198,7 +198,7 @@ jobs:
       - id: dockerhub_login
         if: needs.prepare.outputs.commit_count > 0
         name: Login to Dockerhub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
