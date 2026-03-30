@@ -9,7 +9,7 @@ require (
 	github.com/prometheus/alertmanager v0.31.1
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.67.5
-	github.com/rs/zerolog v1.34.0
+	github.com/rs/zerolog v1.35.0
 	github.com/stretchr/testify v1.11.1
 	maunium.net/go/mautrix v0.26.3
 	sigs.k8s.io/yaml v1.6.0
