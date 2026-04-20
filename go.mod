@@ -11,7 +11,7 @@ require (
 	github.com/prometheus/common v0.67.5
 	github.com/rs/zerolog v1.35.0
 	github.com/stretchr/testify v1.11.1
-	maunium.net/go/mautrix v0.26.4
+	maunium.net/go/mautrix v0.27.0
 	sigs.k8s.io/yaml v1.6.0
 )
 
@@ -31,14 +31,14 @@ require (
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	github.com/yuin/goldmark v1.7.16 // indirect
-	go.mau.fi/util v0.9.7 // indirect
+	github.com/yuin/goldmark v1.8.2 // indirect
+	go.mau.fi/util v0.9.8 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
-	golang.org/x/crypto v0.49.0 // indirect
-	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
-	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/crypto v0.50.0 // indirect
+	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
+	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
