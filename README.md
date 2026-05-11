@@ -279,6 +279,8 @@ Besides the functions available in plain Golang templates, the following functio
 
 - `ToUpper`: Calls the [strings.ToUpper](https://pkg.go.dev/strings#ToUpper) function.
 - `ToLower`: Calls the [strings.ToLower](https://pkg.go.dev/strings#ToLower) function.
+- `Replace`: Replaces all occurrences of a substring with another. Example: `{{ "foo bar foo" | Replace "foo" "baz" }}` → `baz bar baz`.
+- `RegexReplace`: Replaces matches of a regex pattern with a replacement string. Example: `{{ .SilenceURL | RegexReplace "^http://[^/]+" "https://alertmanager.example.com" }}`.
 
 Please open a ticket in case you need additional functions from the Golang SDK.
 

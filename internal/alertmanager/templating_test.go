@@ -6,6 +6,7 @@
 package alertmanager
 
 import (
+	"context"
 	"testing"
 
 	"github.com/metio/matrix-alertmanager-receiver/internal/config"
@@ -106,6 +107,62 @@ func TestSilenceURL(t *testing.T) {
 	for name, testCase := range testCases {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, testCase.expected, silenceURL(testCase.alert, testCase.externalURL))
+		})
+	}
+}
+
+func TestReplace(t *testing.T) {
+	testCases := map[string]struct {
+		templateStr string
+		expected    string
+	}{
+			"replace-all": {
+				templateStr: `{{ "foo bar foo" | Replace "foo" "baz" }}`,
+			expected:    "baz bar baz",
+		},
+		"no-match": {
+			templateStr: `{{ "foo bar" | Replace "xyz" "baz" }}`,
+			expected:    "foo bar",
+		},
+		"empty-string": {
+			templateStr: `{{ "" | Replace "foo" "baz" }}`,
+			expected:    "",
+		},
+	}
+	for name, testCase := range testCases {
+		t.Run(name, func(t *testing.T) {
+			templatingFunc := CreateTemplatingFunc(context.Background(), config.Templating{Firing: testCase.templateStr})
+			result, err := templatingFunc(amtemplate.Alert{}, &amtemplate.Data{})
+			assert.NoError(t, err)
+			assert.Equal(t, testCase.expected, result)
+		})
+	}
+}
+
+func TestRegexReplace(t *testing.T) {
+	testCases := map[string]struct {
+		templateStr string
+		expected    string
+	}{
+		"simple-replace": {
+			templateStr: `{{ "foo bar foo" | RegexReplace "foo" "baz" }}`,
+			expected:    "baz bar baz",
+		},
+		"pattern-match": {
+			templateStr: `{{ "version 1.2.3" | RegexReplace "\\d+\\.\\d+" "X.Y" }}`,
+			expected:    "version X.Y.3",
+		},
+		"invalid-pattern": {
+			templateStr: `{{ "foo bar" | RegexReplace "[" "baz" }}`,
+			expected:    "foo bar",
+		},
+	}
+	for name, testCase := range testCases {
+		t.Run(name, func(t *testing.T) {
+			templatingFunc := CreateTemplatingFunc(context.Background(), config.Templating{Firing: testCase.templateStr})
+			result, err := templatingFunc(amtemplate.Alert{}, &amtemplate.Data{})
+			assert.NoError(t, err)
+			assert.Equal(t, testCase.expected, result)
 		})
 	}
 }
