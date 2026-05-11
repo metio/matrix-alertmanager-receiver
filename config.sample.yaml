@@ -51,4 +51,8 @@ templating:
         <a href="{{ .Alert.Annotations.dashboard }}">Dashboard</a> | 
       {{ end }}
       <a href="{{ .SilenceURL }}">Silence</a>
+      {{/* Template functions like `Replace` and `RegexReplace` can be used to manipulate strings.
+      For example, to change the silence URL base path:
+      <a href="{{ .SilenceURL | RegexReplace "^http://[^/]+" "https://custom-alertmanager.example.com" }}">Custom Silence</a>
+      */}}
     </p>'
