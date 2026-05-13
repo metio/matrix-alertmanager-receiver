@@ -253,30 +253,3 @@ jobs:
           repository: metio/matrix-alertmanager-receiver
           short-description: ${{ github.event.repository.description }}
           readme-filepath: ./README.dockerhub.md
-  announcement:
-    name: Announcement
-    needs: [prepare, build, github, dockerhub]
-    runs-on: ubuntu-latest
-    steps:
-      - id: mail
-        name: Send Mail
-        if: needs.prepare.outputs.commit_count > 0
-        uses: dawidd6/action-send-mail@v17
-        with:
-          server_address: ${{ secrets.MAIL_SERVER }}
-          server_port: ${{ secrets.MAIL_PORT }}
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: ${{ github.event.repository.name }} version ${{ needs.prepare.outputs.release_version }} published
-          body: See https://github.com/metio/${{ github.event.repository.name }}/releases/tag/${{ needs.prepare.outputs.release_version }} for details.
-          to: ${{ secrets.MAIL_RECIPIENT }}
-          from: ${{ secrets.MAIL_SENDER }}
-      - id: matrix
-        name: Send Matrix Message
-        if: needs.prepare.outputs.commit_count > 0
-        uses: s3krit/matrix-message-action@v0.0.3
-        with:
-          room_id: ${{ secrets.MATRIX_ROOM_ID }}
-          access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: ${{ github.event.repository.name }} version [${{ needs.prepare.outputs.release_version }}](https://github.com/metio/${{ github.event.repository.name }}/releases/tag/${{ needs.prepare.outputs.release_version }}) published
-          server: ${{ secrets.MATRIX_SERVER }}
