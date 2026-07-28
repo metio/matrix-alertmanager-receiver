@@ -8,7 +8,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o matrix-alertmanager-receiver
 
-FROM gcr.io/distroless/base-debian11
+FROM gcr.io/distroless/base-debian13:latest
 COPY --from=build /app/matrix-alertmanager-receiver /
 USER nonroot:nonroot
 ENTRYPOINT ["/matrix-alertmanager-receiver"]
