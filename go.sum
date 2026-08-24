@@ -16,8 +16,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
-github.com/prometheus/alertmanager v0.33.1 h1:PJHGvTdb8Q0ZEpJnWff120WxB2kxIScLa707AaIudTo=
-github.com/prometheus/alertmanager v0.33.1/go.mod h1:V06Uc8EZ5X5wLOJRGhtXx+EE2LgrinFIADbKWMVm1RY=
+github.com/prometheus/alertmanager v0.34.0 h1:z75n0NoypggESmt3HD4JlTXOaOZj1EBz1ACHO4Z6EUk=
+github.com/prometheus/alertmanager v0.34.0/go.mod h1:/qF39A6Vb1MMoDM1SxcySobb7wmpBZha8COwULiKUUo=
 github.com/prometheus/client_golang v1.24.1 h1:JnJkREXzWxUdCuPFpIWZiPispT9xVV59uiuyR2bPlnU=
 github.com/prometheus/client_golang v1.24.1/go.mod h1:F+oSRECHg4sse5ucfYpYDeIv/hu68Zo0uoHKetWnzcE=
 github.com/prometheus/client_model v0.6.2 h1:oBsgwpGs7iVziMvrGhE53c/GrLUsZdHnqNwqPLxwZyk=
