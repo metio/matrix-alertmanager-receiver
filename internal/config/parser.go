@@ -15,7 +15,7 @@ import (
 )
 
 func ParseConfiguration(ctx context.Context, configPath string) *Configuration {
-	file, err := os.ReadFile(configPath)
+	file, err := os.ReadFile(configPath) // #nosec G304 -- the operator chooses the configuration file
 	if err != nil {
 		return nil
 	}
@@ -32,7 +32,7 @@ func ParseConfiguration(ctx context.Context, configPath string) *Configuration {
 }
 
 func replaceEnvVariables(content []byte) []byte {
-	var allEnvVariables = regexp.MustCompile(`\${(?P<name>\w+)}`)
+	allEnvVariables := regexp.MustCompile(`\${(?P<name>\w+)}`)
 	return allEnvVariables.ReplaceAllFunc(content, func(matched []byte) []byte {
 		varName := allEnvVariables.ReplaceAllString(string(matched), `$1`)
 		if value, ok := os.LookupEnv(varName); ok {

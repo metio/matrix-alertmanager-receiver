@@ -52,10 +52,10 @@ func CreateTemplatingFunc(ctx context.Context, configuration config.Templating) 
 	slog.DebugContext(ctx, "Creating templating function", slog.Any("configuration", configuration.LogValue()))
 
 	templateFunctions := template.FuncMap{
-		"ToUpper":       strings.ToUpper,
-		"ToLower":       strings.ToLower,
-		"Replace":       func(old, new, s string) string { return strings.ReplaceAll(s, old, new) },
-		"RegexReplace":  func(pattern, replacement, s string) string {
+		"ToUpper": strings.ToUpper,
+		"ToLower": strings.ToLower,
+		"Replace": func(old, new, s string) string { return strings.ReplaceAll(s, old, new) },
+		"RegexReplace": func(pattern, replacement, s string) string {
 			re, err := regexp.Compile(pattern)
 			if err != nil {
 				slog.ErrorContext(ctx, "Invalid regex pattern", slog.String("pattern", pattern), slog.Any("error", err))

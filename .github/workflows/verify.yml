@@ -14,17 +14,22 @@ jobs:
       - id: checkout
         name: Checkout
         uses: actions/checkout@v7
-      - id: setup_go
-        name: Set up Go
-        uses: actions/setup-go@v7
+      - id: toolchain
+        name: Set up Toolchain
+        uses: metio/breto@8605569953d2162ace55fb0f2a9f61ad78b2de0f # 2026.10.30102245
         with:
-          go-version-file: go.mod
-          cache: true
+          registries: github:metio/toolchains
       - id: lint
         name: Lint Go Code
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: latest
+        run: |
+          go vet ./...
+          staticcheck ./...
+          gosec -quiet ./...
+          unformatted="$(gofumpt -l .)"
+          if [ -n "$unformatted" ]; then echo "$unformatted"; exit 1; fi
+      - id: vulnerabilities
+        name: Check Vulnerabilities
+        run: govulncheck ./...
       - id: tests
         name: Run Tests
         run: go test -v -cover ./...

@@ -116,8 +116,8 @@ func TestReplace(t *testing.T) {
 		templateStr string
 		expected    string
 	}{
-			"replace-all": {
-				templateStr: `{{ "foo bar foo" | Replace "foo" "baz" }}`,
+		"replace-all": {
+			templateStr: `{{ "foo bar foo" | Replace "foo" "baz" }}`,
 			expected:    "baz bar baz",
 		},
 		"no-match": {

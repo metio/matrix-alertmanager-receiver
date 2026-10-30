@@ -59,7 +59,7 @@ templating:
 				}
 			}
 			tempDir := t.TempDir()
-			err := os.WriteFile(tempDir+name, []byte(testCase.configuration), 0666)
+			err := os.WriteFile(tempDir+name, []byte(testCase.configuration), 0o666)
 			if err != nil {
 				t.Fatal(err)
 			}

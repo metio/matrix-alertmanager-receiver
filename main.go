@@ -10,23 +10,25 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log/slog"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/metio/matrix-alertmanager-receiver/internal/alertmanager"
 	"github.com/metio/matrix-alertmanager-receiver/internal/config"
 	"github.com/metio/matrix-alertmanager-receiver/internal/handler"
 	"github.com/metio/matrix-alertmanager-receiver/internal/matrix"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log/slog"
-	"net/http"
-	"os"
-	"strings"
 )
 
 var matrixAlertmanagerReceiverVersion = "development"
 
 func main() {
-	var configPath = flag.String("config-path", "", "Path to configuration file")
-	var logLevel = flag.String("log-level", "info", "The log level to use (debug, info, warn, error)")
-	var version = flag.Bool("version", false, "Print version and exit")
+	configPath := flag.String("config-path", "", "Path to configuration file")
+	logLevel := flag.String("log-level", "info", "The log level to use (debug, info, warn, error)")
+	version := flag.Bool("version", false, "Print version and exit")
 	flag.Parse()
 
 	if *version {
@@ -78,8 +80,9 @@ func main() {
 	}
 	slog.InfoContext(ctx, "Handlers configured")
 
-	var listenAddr = fmt.Sprintf("%v:%v", configuration.HTTPServer.Address, configuration.HTTPServer.Port)
-	err := http.ListenAndServe(listenAddr, nil)
+	listenAddr := fmt.Sprintf("%v:%v", configuration.HTTPServer.Address, configuration.HTTPServer.Port)
+	server := &http.Server{Addr: listenAddr, ReadHeaderTimeout: 10 * time.Second}
+	err := server.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		slog.DebugContext(ctx, "Server closed")
 		os.Exit(0)
