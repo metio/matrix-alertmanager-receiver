@@ -1,0 +1,16 @@
+version = 1
+SPDX-PackageName = "matrix-alertmanager-receiver"
+SPDX-PackageSupplier = "Sebastian Hoß <seb@hoß.de>"
+SPDX-PackageDownloadLocation = "https://github.com/metio/matrix-alertmanager-receiver"
+
+[[annotations]]
+path = ".idea/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The matrix-alertmanager-receiver Authors"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = "http/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The matrix-alertmanager-receiver Authors"
+SPDX-License-Identifier = "GPL-3.0-or-later"
