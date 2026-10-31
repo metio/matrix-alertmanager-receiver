@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+extends: default
+rules:
+  line-length:
+    max: 160
+    level: warning
+  document-start: disable
+  comments:
+    min-spaces-from-content: 1
+  truthy:
+    check-keys: false

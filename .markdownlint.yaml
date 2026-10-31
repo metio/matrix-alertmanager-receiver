@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+default: true
+MD010:
+  code_blocks: false
+MD013: false
+MD024:
+  siblings_only: true
+MD025:
+  front_matter_title: ""
+MD033: false
+MD060: false

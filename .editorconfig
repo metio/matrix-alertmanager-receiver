@@ -4,7 +4,7 @@
 # top-most EditorConfig file
 root = true
 
-# global rules for all fies
+# global rules for all files
 [*]
 charset = utf-8
 indent_style = space

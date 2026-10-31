@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[default]
+extend-ignore-re = []
+
+[default.extend-words]
+edn = "edn"
+
+[default.extend-identifiers]
+
+[files]
+extend-exclude = ["LICENSES/", "go.mod", "go.sum"]
