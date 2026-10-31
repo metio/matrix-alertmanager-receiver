@@ -17,7 +17,7 @@ jobs:
     steps:
       - id: checkout
         name: Clone Git Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       - id: last_release
@@ -55,14 +55,14 @@ jobs:
       - id: checkout
         name: Clone Git Repository
         if: needs.prepare.outputs.commit_count > 0
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - id: versioning
         name: Modify release version
         if: needs.prepare.outputs.commit_count > 0
         run: sed -i -e 's/var matrixAlertmanagerReceiverVersion = .*/var matrixAlertmanagerReceiverVersion = "${{ needs.prepare.outputs.release_version }}"/' main.go
       - id: setup_go
         name: Set up Go
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         if: needs.prepare.outputs.commit_count > 0
         with:
           go-version-file: go.mod
@@ -93,7 +93,7 @@ jobs:
       - id: upload
         name: Upload Artifact
         if: needs.prepare.outputs.commit_count > 0
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.goos }}-${{ matrix.goarch }}
           path: ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz
@@ -107,13 +107,13 @@ jobs:
       - id: checkout
         name: Clone Git Repository
         if: needs.prepare.outputs.commit_count > 0
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       - id: download
         name: Download Artifacts
         if: needs.prepare.outputs.commit_count > 0
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: dist
           pattern: ${{ github.event.repository.name }}-*
@@ -133,7 +133,7 @@ jobs:
           > ${{ github.event.repository.name }}_${{ needs.prepare.outputs.release_version }}_SHA256SUMS
       - id: import_gpg
         name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v7
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7
         if: needs.prepare.outputs.commit_count > 0
         with:
           gpg_private_key: ${{ secrets.GPG_SECRET_KEY_BASE64 }}
@@ -151,7 +151,7 @@ jobs:
       - id: create_release
         name: Create Release
         if: needs.prepare.outputs.commit_count > 0
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
         with:
           tag_name: ${{ needs.prepare.outputs.release_version }}
           name: ${{ needs.prepare.outputs.release_version }}
@@ -182,7 +182,7 @@ jobs:
       - id: checkout
         name: Clone Git Repository
         if: needs.prepare.outputs.commit_count > 0
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - id: versioning
         name: Modify release version
         if: needs.prepare.outputs.commit_count > 0
@@ -190,15 +190,15 @@ jobs:
       - id: cosign-install
         if: needs.prepare.outputs.commit_count > 0
         name: Install Cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
       - id: buildx
         if: needs.prepare.outputs.commit_count > 0
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
       - id: dockerhub_login
         if: needs.prepare.outputs.commit_count > 0
         name: Login to Dockerhub
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -209,7 +209,7 @@ jobs:
       - id: publish
         if: needs.prepare.outputs.commit_count > 0
         name: Publish Image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
@@ -246,7 +246,7 @@ jobs:
       - id: documentation
         name: Docker Hub Description
         if: needs.prepare.outputs.commit_count > 0
-        uses: peter-evans/dockerhub-description@v5
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
