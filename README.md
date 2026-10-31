@@ -1,7 +1,7 @@
 <!--
 SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
 SPDX-License-Identifier: GPL-3.0-or-later
- -->
+-->
 
 # matrix-alertmanager-receiver
 
@@ -343,3 +343,7 @@ In order to build this project, make sure to install at least Golang 1.25 and ru
 ```shell
 $ CGO_ENABLED=0 go build -o matrix-alertmanager-receiver
 ```
+
+## License
+
+[GPL-3.0-or-later](LICENSES/GPL-3.0-or-later.txt).
