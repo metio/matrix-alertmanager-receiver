@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v7
       - id: toolchain
         name: Set up Toolchain
-        uses: metio/breto@8605569953d2162ace55fb0f2a9f61ad78b2de0f # 2026.10.30102245
+        uses: metio/breto@9fa67afc6a21b59600180acd0cee7d5eb26125ef # 2026.10.31164824
         with:
           registries: github:metio/toolchains
       - id: lint
