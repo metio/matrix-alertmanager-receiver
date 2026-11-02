@@ -8,7 +8,7 @@ on:
 permissions:
   contents: read
 jobs:
-  verify:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -47,3 +47,16 @@ jobs:
           push: false
           tags: |
             docker.io/metio/matrix-alertmanager-receiver:${{ github.sha }}
+  verify:
+    name: Verify
+    needs: [build]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify every job succeeded or skipped
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          bad=$(echo "$NEEDS" | jq -r 'to_entries[] | select(.value.result != "success" and .value.result != "skipped") | "\(.key)=\(.value.result)"')
+          [ -z "$bad" ] || { echo "::error::$bad"; exit 1; }
