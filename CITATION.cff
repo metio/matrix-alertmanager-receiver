@@ -9,11 +9,13 @@ authors:
 - family-names: Hoß
   given-names: Sebastian
   email: seb@hoß.de
-url: https://github.com/metio/matrix-alertmanager-receiver
+url: https://github.com/metio/matrix-alertmanager-receiver/
 license: GPL-3.0-or-later
 keywords:
   - alerting
   - alertmanager
+  - alertmanager-webhook
+  - alertmanager-webhook-receiver
   - go
   - make
   - matrix
