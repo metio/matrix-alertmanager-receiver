@@ -1,40 +1,27 @@
 # SPDX-FileCopyrightText: The matrix-alertmanager-receiver Authors
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-name: Verify Commits
+name: Verify
 on:
   merge_group:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 permissions:
   contents: read
 jobs:
-  build:
+  go:
+    name: Golang
+    uses: metio/ci/.github/workflows/golang.yml@bfcb1a4d37c4fd4d5d9c27181191dcad0d04f90c # 2026.11.1211658
+  image:
+    name: Container Image
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - id: checkout
         name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - id: toolchain
-        name: Set up Toolchain
-        uses: metio/ci/breto@bfcb1a4d37c4fd4d5d9c27181191dcad0d04f90c # 2026.11.1211658
         with:
-          registries: github:metio/toolchains
-      - id: lint
-        name: Lint Go Code
-        run: |
-          go vet ./...
-          staticcheck ./...
-          gosec -quiet ./...
-          unformatted="$(gofumpt -l .)"
-          if [ -n "$unformatted" ]; then echo "$unformatted"; exit 1; fi
-      - id: vulnerabilities
-        name: Check Vulnerabilities
-        run: govulncheck ./...
-      - id: tests
-        name: Run Tests
-        run: go test -v -cover ./...
+          persist-credentials: false
       - id: buildx
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
@@ -50,7 +37,7 @@ jobs:
             docker.io/metio/matrix-alertmanager-receiver:${{ github.sha }}
   verify:
     name: Verify
-    needs: [build]
+    needs: [go, image]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10
