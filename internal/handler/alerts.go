@@ -69,12 +69,22 @@ func AlertsHandler(ctx context.Context, sendingFunc matrix.SendingFunc, templati
 		room := roomExtractorFunc(request)
 		slog.DebugContext(ctx, "Extracted roomID", slog.String("room", room))
 
+		// Attempt every alert even if an earlier one failed, then report any failure to
+		// Alertmanager with a 5xx status so that it retries the notification.
+		failedSends := 0
 		for _, alert := range data.Alerts {
 			alertsTotal.WithLabelValues(room).Inc()
 			if message, templateError := templatingFunc(alert, data); templateError == nil {
 				slog.DebugContext(ctx, "Created message", slog.String("html", message))
-				sendingFunc(message, room)
+				if sendError := sendingFunc(message, room); sendError != nil {
+					failedSends++
+				}
 			}
+		}
+		if failedSends > 0 {
+			slog.ErrorContext(ctx, "Could not deliver all alerts to Matrix", slog.Int("failed", failedSends), slog.Int("alerts", len(data.Alerts)), slog.String("room", room))
+			writer.WriteHeader(http.StatusBadGateway)
+			return
 		}
 		writer.WriteHeader(http.StatusOK)
 	}
