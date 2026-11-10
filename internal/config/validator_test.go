@@ -119,6 +119,23 @@ func TestValidateConfiguration_Errors(t *testing.T) {
 			},
 			hasErrors: true,
 		},
+		"unknown-resolved-notification-mode": {
+			configuration: &Configuration{
+				HTTPServer: HTTPServer{
+					Port: 12345,
+				},
+				Matrix: Matrix{
+					HomeServerURL:            "example.com",
+					UserID:                   "12345",
+					AccessToken:              "secret",
+					ResolvedNotificationMode: "something",
+				},
+				Templating: Templating{
+					Firing: "abc",
+				},
+			},
+			hasErrors: true,
+		},
 	}
 	for name, testCase := range testCases {
 		t.Run(name, func(t *testing.T) {
@@ -155,9 +172,10 @@ func TestValidateConfiguration_AdjustedValues(t *testing.T) {
 					BasicUsername:    "alertmanager",
 				},
 				Matrix: Matrix{
-					HomeServerURL: "example.com",
-					UserID:        "12345",
-					AccessToken:   "secret",
+					HomeServerURL:            "example.com",
+					UserID:                   "12345",
+					AccessToken:              "secret",
+					ResolvedNotificationMode: "new-event",
 				},
 				Templating: Templating{
 					Firing: "something broke",
@@ -187,9 +205,75 @@ func TestValidateConfiguration_AdjustedValues(t *testing.T) {
 					BasicUsername:    "alertmanager",
 				},
 				Matrix: Matrix{
+					HomeServerURL:            "example.com",
+					UserID:                   "12345",
+					AccessToken:              "secret",
+					ResolvedNotificationMode: "new-event",
+				},
+				Templating: Templating{
+					Firing: "something broke",
+				},
+			},
+		},
+		"resolved-notification-mode-defaults-to-new-event": {
+			configuration: &Configuration{
+				HTTPServer: HTTPServer{
+					Port: 12345,
+				},
+				Matrix: Matrix{
 					HomeServerURL: "example.com",
 					UserID:        "12345",
 					AccessToken:   "secret",
+				},
+				Templating: Templating{
+					Firing: "something broke",
+				},
+			},
+			expected: &Configuration{
+				HTTPServer: HTTPServer{
+					Port:             12345,
+					AlertsPathPrefix: "/alerts/",
+					MetricsPath:      "/metrics",
+					BasicUsername:    "alertmanager",
+				},
+				Matrix: Matrix{
+					HomeServerURL:            "example.com",
+					UserID:                   "12345",
+					AccessToken:              "secret",
+					ResolvedNotificationMode: "new-event",
+				},
+				Templating: Templating{
+					Firing: "something broke",
+				},
+			},
+		},
+		"resolved-notification-mode-edit-is-preserved": {
+			configuration: &Configuration{
+				HTTPServer: HTTPServer{
+					Port: 12345,
+				},
+				Matrix: Matrix{
+					HomeServerURL:            "example.com",
+					UserID:                   "12345",
+					AccessToken:              "secret",
+					ResolvedNotificationMode: "edit",
+				},
+				Templating: Templating{
+					Firing: "something broke",
+				},
+			},
+			expected: &Configuration{
+				HTTPServer: HTTPServer{
+					Port:             12345,
+					AlertsPathPrefix: "/alerts/",
+					MetricsPath:      "/metrics",
+					BasicUsername:    "alertmanager",
+				},
+				Matrix: Matrix{
+					HomeServerURL:            "example.com",
+					UserID:                   "12345",
+					AccessToken:              "secret",
+					ResolvedNotificationMode: "edit",
 				},
 				Templating: Templating{
 					Firing: "something broke",
