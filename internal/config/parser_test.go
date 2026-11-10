@@ -40,9 +40,10 @@ templating:
 					BasicUsername:    "alertmanager",
 				},
 				Matrix: Matrix{
-					HomeServerURL: "https://matrix.example.com",
-					UserID:        "@user:matrix.example.com",
-					AccessToken:   "something",
+					HomeServerURL:            "https://matrix.example.com",
+					UserID:                   "@user:matrix.example.com",
+					AccessToken:              "something",
+					ResolvedNotificationMode: "new-event",
 				},
 				Templating: Templating{
 					Firing: "something broke ${UNKNOWN}",

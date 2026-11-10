@@ -9,6 +9,7 @@ matrix:
   access-token: secret
   room-mapping:
     warnings: !somewhere:example.com
+  resolved-notification-mode: new-event
 templating:
   external-url-mapping:
     "alertmanager:9093": https://alertmanager.example.com
