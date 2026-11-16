@@ -11,7 +11,7 @@ permissions:
 jobs:
   go:
     name: Golang
-    uses: metio/ci/.github/workflows/golang.yml@bfcb1a4d37c4fd4d5d9c27181191dcad0d04f90c # 2026.11.1211658
+    uses: metio/ci/.github/workflows/golang.yml@d1d58ce5b2b4dbac322bedd78203810def514bcc # 2026.11.15184511
   image:
     name: Container Image
     runs-on: ubuntu-latest
