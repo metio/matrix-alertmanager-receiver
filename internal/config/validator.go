@@ -57,6 +57,15 @@ func validateConfiguration(ctx context.Context, configuration *Configuration) bo
 			hasValidationErrors = true
 		}
 	}
+	switch strings.TrimSpace(matrix.ResolvedNotificationMode) {
+	case "":
+		matrix.ResolvedNotificationMode = "new-event"
+	case "new-event", "edit":
+	default:
+		slog.ErrorContext(ctx, "Unknown resolved notification mode specified",
+			slog.String("resolved-notification-mode", matrix.ResolvedNotificationMode))
+		hasValidationErrors = true
+	}
 
 	templating := configuration.Templating
 	if strings.TrimSpace(templating.Firing) == "" {

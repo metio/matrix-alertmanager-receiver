@@ -45,11 +45,12 @@ func (h *HTTPServer) LogValue() slog.Value {
 }
 
 type Matrix struct {
-	HomeServerURL string            `json:"homeserver-url"`
-	UserID        string            `json:"user-id"`
-	AccessToken   string            `json:"access-token"`
-	Proxy         string            `json:"proxy"`
-	RoomMapping   map[string]string `json:"room-mapping"`
+	HomeServerURL            string            `json:"homeserver-url"`
+	UserID                   string            `json:"user-id"`
+	AccessToken              string            `json:"access-token"`
+	Proxy                    string            `json:"proxy"`
+	RoomMapping              map[string]string `json:"room-mapping"`
+	ResolvedNotificationMode string            `json:"resolved-notification-mode"`
 }
 
 func (m *Matrix) LogValue() slog.Value {
@@ -58,6 +59,7 @@ func (m *Matrix) LogValue() slog.Value {
 		slog.String("user-id", m.UserID),
 		slog.String("proxy", m.Proxy),
 		slog.Any("room-mapping", m.RoomMapping),
+		slog.String("resolved-notification-mode", m.ResolvedNotificationMode),
 	)
 }
 
