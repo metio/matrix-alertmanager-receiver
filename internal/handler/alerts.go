@@ -73,7 +73,7 @@ func AlertsHandler(ctx context.Context, sendingFunc matrix.SendingFunc, templati
 			alertsTotal.WithLabelValues(room).Inc()
 			if message, templateError := templatingFunc(alert, data); templateError == nil {
 				slog.DebugContext(ctx, "Created message", slog.String("html", message))
-				sendingFunc(message, room)
+				sendingFunc(alert, message, room)
 			}
 		}
 		writer.WriteHeader(http.StatusOK)
