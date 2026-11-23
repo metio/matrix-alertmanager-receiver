@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: metio/ci/breto@d1d58ce5b2b4dbac322bedd78203810def514bcc # 2026.11.15184511
+      - uses: metio/ci/breto@481c52330329f9256f7f3d895da0ff54ede66603 # 2026.11.23065533
         with:
           registries: github:metio/toolchains
       - name: Set the release version
@@ -107,7 +107,7 @@ jobs:
       - name: Calculate Checksums
         run: sha256sum ./*.tar.gz > "matrix-alertmanager-receiver_${VERSION}_SHA256SUMS"
         working-directory: dist
-      - uses: metio/ci/cosign-sign-blob@d1d58ce5b2b4dbac322bedd78203810def514bcc # 2026.11.15184511
+      - uses: metio/ci/cosign-sign-blob@481c52330329f9256f7f3d895da0ff54ede66603 # 2026.11.23065533
         with:
           file: dist/matrix-alertmanager-receiver_${{ needs.prepare.outputs.release_version }}_SHA256SUMS
       - name: Create Release
