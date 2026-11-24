@@ -44,14 +44,16 @@ var (
 	})
 )
 
-type SendingFunc func(htmlText string, roomID string)
+// SendingFunc sends the given HTML message to the given room and returns a non-nil error
+// if the room could not be joined or the message could not be sent.
+type SendingFunc func(htmlText string, roomID string) error
 
 var joinedRoomIDs []string
 
 func CreatingSendingFunc(ctx context.Context, configuration config.Matrix) SendingFunc {
 	matrixClient := createMatrixClient(ctx, configuration)
 	fetchJoinedRooms(ctx, matrixClient)
-	return func(htmlText string, room string) {
+	return func(htmlText string, room string) error {
 		mappedRoom := room
 		if mapped, ok := configuration.RoomMapping[room]; ok {
 			mappedRoom = mapped
@@ -59,16 +61,18 @@ func CreatingSendingFunc(ctx context.Context, configuration config.Matrix) Sendi
 		if err := joinRoom(ctx, matrixClient, mappedRoom); err != nil {
 			joinRoomFailureTotal.WithLabelValues(mappedRoom).Inc()
 			slog.ErrorContext(ctx, fmt.Sprintf("Could not join room %s", room), slog.Any("error", err))
-		} else {
-			joinRoomSuccessTotal.WithLabelValues(mappedRoom).Inc()
-			if respSendEvent, err := matrixClient.SendMessageEvent(ctx, id.RoomID(mappedRoom), event.NewEventType("m.room.message"), format.HTMLToContent(htmlText)); err != nil {
-				sendFailureTotal.Inc()
-				slog.ErrorContext(ctx, "Could not send message to Matrix homeserver", slog.Any("error", err))
-			} else {
-				sendSuccessTotal.Inc()
-				slog.DebugContext(ctx, fmt.Sprintf("Message %s sent to Matrix homeserver", respSendEvent.EventID))
-			}
+			return fmt.Errorf("could not join room %s: %w", room, err)
 		}
+		joinRoomSuccessTotal.WithLabelValues(mappedRoom).Inc()
+		respSendEvent, err := matrixClient.SendMessageEvent(ctx, id.RoomID(mappedRoom), event.NewEventType("m.room.message"), format.HTMLToContent(htmlText))
+		if err != nil {
+			sendFailureTotal.Inc()
+			slog.ErrorContext(ctx, "Could not send message to Matrix homeserver", slog.Any("error", err))
+			return fmt.Errorf("could not send message to room %s: %w", room, err)
+		}
+		sendSuccessTotal.Inc()
+		slog.DebugContext(ctx, fmt.Sprintf("Message %s sent to Matrix homeserver", respSendEvent.EventID))
+		return nil
 	}
 }
 
